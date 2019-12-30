@@ -15,6 +15,8 @@ void (*bootrom_massboot)(void)       = (void*)0x00000098;
 void (*bootrom_spiflash_boot)(void)  = (void*)0x00000064;
 void (*bootrom_nandflash_boot)(void) = (void*)0x0000007C;
 void (*bootrom_usbboot)(void)        = (void*)0x00002840;
+void (*bootrom_nandflash_loadbios_init)(void) = (void*)0x000019A4;
+void (*bootrom_nandflash_config_12bit_param)(unsigned int) = (void*)0x00001AA4;
 int (*bootrom_nandflash_loadbios)(void) = (void*)0x00000A68;
 
 #endif /* __TIPTOI_BOOTROM_H__ */

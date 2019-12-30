@@ -1,6 +1,8 @@
 import os
 import argparse
 import serial
+import struct
+import sys
 from struct import *
 
 class snowbirdopter:
@@ -8,33 +10,37 @@ class snowbirdopter:
     ser = None
     prompt = b'SNOWBIRD2-BIOS>#'
 
-    def __init__(self, serport):
-        self.ser = serial.Serial(serport, 38400, timeout=2, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0, rtscts=0)
-        print(r"[DEBUG] Serial port device name: '{}'".format(self.ser.name) )
+    def __init__(self, serport, verbose=True):
+        try:
+            self.ser = serial.Serial(serport, 38400, timeout=2, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0, rtscts=0)
+        except serial.serialutil.SerialException:
+            print(r"[DEBUG] Serial device is not available." )
+            raise ValueError('Serial device is not available.')
 
-        # if immediately switched on after the serial interface has been opened, the first prompt should be read from the serial RX buffer before sending any command
-        #switchingOn = False
-        #if switchingOn:
-        #    welcomePrompt = self.ser.read(512)
-        #    print(r"{}".format( welcomePrompt ) )
+        if verbose:
+            print(r"[DEBUG] Serial port device name: '{}'".format(self.ser.name) )
 
     def __del__(self):
-        self.ser.close()
+        pass
+        #if self.ser is not None:
+        #    self.ser.close()
 
-    def readline(self):
+    def readline(self, verbose=True):
         line = self.ser.readline()
-        print(r"Read from serial: {}".format(line) )
+        if verbose:
+            print(r"[INFO] Read from serial: {}".format(line) )
         return True
 
     # Transmit a line byte per byte and wait for correct echo after each byte
-    def trx_line(self, line):
+    def trx_line(self, line, rxEcho=True, checkEcho=True):
         for k in range(0, len(line)):
             cTx = line[k].to_bytes(1, byteorder='big')
             self.ser.write(cTx)
-            cRx = self.ser.read(1)
-            if cTx != cRx:
-                print(r"Tx: {} != Rx: {}".format( cTx, cRx ))
-                return False
+            if rxEcho:
+                cRx = self.ser.read(1)
+                if checkEcho and (cTx != cRx):
+                    print(r"[ERROR] Tx: {} != Rx: {}".format( cTx, cRx ))
+                    return False
         return True
 
     # Receive until expected string appears or timeout occurs
@@ -43,18 +49,19 @@ class snowbirdopter:
         if resp == exp:
             return True
         else:
-            print(r"resp: {} != exp: {}".format( resp, exp ))
+            print(r"[ERROR] resp: {} != exp: {}".format( resp, exp ))
             return False
 
     # Implementation of the dump command; can optionally also dump to a binary file
-    def dump(self, startAddr, endAddr, filepath=None):
+    def dump(self, startAddr, endAddr, filepath=None, verbose=True):
         startAddr = startAddr.lower()
         endAddr = endAddr.lower()
 
-        if filepath:
-            print(r"[DEBUG] dump from 0x{} to 0x{}, store in binfile '{}'".format(startAddr, endAddr, filepath) )
-        else:
-            print(r"[DEBUG] dump from 0x{} to 0x{}".format(startAddr, endAddr) )
+        if verbose:
+            if filepath:
+                print(r"[DEBUG] dump from 0x{} to 0x{}, store in binfile '{}'".format(startAddr, endAddr, filepath) )
+            else:
+                print(r"[DEBUG] dump from 0x{} to 0x{}".format(startAddr, endAddr) )
 
         cmd = b'dump\r'
         if not self.trx_line(cmd):
@@ -94,7 +101,8 @@ class snowbirdopter:
                 line = line.decode("ascii").rstrip()
                 
                 rawData = line.split('\t', 5)
-                print( r"[DEBUG] {}".format( '  '.join(rawData) ) )
+                if verbose:
+                    print( r"[DEBUG] {}".format( '  '.join(rawData) ) )
 
                 # further processing to store it in a binary file
                 # skip address as the memory values are in consecutive order without gaps
@@ -113,14 +121,15 @@ class snowbirdopter:
             return True
 
     # Implementation of the setvalue command
-    def setvalue(self, address, value):
+    def setvalue(self, address, value, verbose=True):
+        # TODO/FIXME: check word alignment!
         address = address.lower()
         value = value.lower()
 
-        # TODO/FIXME: check word alignment!
-        print(r"[DEBUG] setvalue 0x{} at 0x{}".format(value, address) )
-        cmd = b'setvalue\r'
+        if verbose:
+            print(r"[DEBUG] setvalue 0x{} at 0x{}".format(value, address) )
 
+        cmd = b'setvalue\r'
         if not self.trx_line(cmd):
             return False
 
@@ -149,12 +158,13 @@ class snowbirdopter:
         return True
 
     # Implementation of the go command
-    def go(self, address):
+    def go(self, address, verbose=True, readAfterGo=True):
         address = address.lower()
 
-        print(r"[DEBUG] go to address 0x{}".format(address) )
-        cmd = b'go\r'
+        if verbose:
+            print(r"[DEBUG] go to address 0x{}".format(address) )
 
+        cmd = b'go\r'
         if not self.trx_line(cmd):
             return False
 
@@ -165,52 +175,127 @@ class snowbirdopter:
         if not self.trx_line(addr):
             return False
 
-        self.readline()
+        if readAfterGo:
+            self.readline(verbose=True)
 
         return True
 
-    # Load contents of a binary file to specific memory region on the target
-    def load_binfile(self, startAddr, filepath):
-        address = startAddr
-        addressAsNum = int(startAddr, 16)
-        # TODO/FIXME: check word alignment!
-        # TODO: add progress bar; calculation of estimated remaining time
+    # Implementation of the download command
+    def download(self, address, data, verbose=True):
+        if verbose:
+            print(r"[DEBUG] download to address 0x{}".format(address) )
 
-        print( r"[DEBUG] load_binfile('{}' at 0x{:08x})".format(filepath, addressAsNum) )
+        cmd = b'download\r'
+        if not self.trx_line(cmd):
+            return False
         
-        statinfo = os.stat(filepath)
-        alignment = statinfo.st_size%4
-        print( r"[DEBUG] File size: {}".format(statinfo.st_size) )
-
-        if alignment != 0:
+        if not self.rx_check_expected(b'Input down addr(0x08000000):'):
+            return False
+        
+        txAddress = address.encode('ascii')
+        if not self.trx_line( txAddress + b'\r' ):
             return False
 
-        with open(filepath, "rb") as fp:
-            word = fp.read(4)
-            while word:
-                value = next(iter(unpack('I', word)))
-                valueAsStr = "{:08x}".format(value)
-                address = "{:08x}".format(addressAsNum)
-                if not self.setvalue(address, valueAsStr):
-                    print("[ERROR] Setting value failed.")
-                    return False
-                word = fp.read(4)
-                addressAsNum += 4
+        if not self.rx_check_expected( b'addr :0x' + txAddress + b'\nSelect your file:' ):
+            return False
+
+        payloadLen = len(data)
+        downloadLen = 6 + payloadLen # 4 bytes length + 2 bytes checksum + length of payload data
+        #if verbose:
+        print( r"[DEBUG] payload length: {}, overall download length: {}".format( payloadLen, downloadLen ) )
+
+        try:
+            txDownloadLen = downloadLen.to_bytes(4, byteorder='little')
+        except:
+            print( "[ERROR] Unable to convert length to 16 bit value to be transmitted." )
+            return False
+
+        # transmit the size
+        if not self.trx_line(txDownloadLen, rxEcho=False):
+            return False
+
+        # transmit the payload data
+        if not self.trx_line(data, rxEcho=False):
+            return False
+
+        # calculate the checksum (16 bit)
+        checkSum = sum(data)
+        if verbose:
+            checkSum16Bits = checkSum % (2**16)
+
+        if verbose:
+            print( r"[DEBUG] checkSum={}, checkSum16Bits={}".format( checkSum, checkSum16Bits ) )
+        try:
+            txCheckSum = checkSum16Bits.to_bytes(2, byteorder='little')
+        except Exception as ex:
+            print( r'[ERROR] Unable to calculate checksum ("{}", value: {}).'.format(ex, checkSum16Bits) )
+            return False
+        if verbose:
+            print( r"[DEBUG] checkSum={}, txCheckSum={}".format( checkSum, txCheckSum ) )
+
+        # transmit the calculated checksum
+        if not self.trx_line(txCheckSum, rxEcho=False):
+            return False
+
+        if not self.rx_check_expected(b'Strat check, Wait...'):
+            return False
+
+        self.readline(verbose=verbose) # read checksum line, TODO: compare returned checksum
+
+        if not self.rx_check_expected(b'Down OK!\n'):
+            return False
+
         return True
 
-    # Receive a single byte/character from the serial
-    def rx_byte(self):
+    # Load contents of a binary file to specific memory region on the target based on the native "download" command
+    def load_binfile(self, startAddr, filepath, verbose=True):
+        address = startAddr
+        addressAsNum = int(startAddr, 16)
+        
+        if addressAsNum % 4 != 0:
+            print( "[ERROR] Address must be aligned but it's not." )
+            return False
+
+        # TODO: add progress bar; calculation of estimated remaining time
+
+        if verbose:
+            print( r"[DEBUG] load_binfile('{}' at 0x{:08x})".format(filepath, addressAsNum) )
+
+        statinfo = os.stat(filepath)
+        alignment = statinfo.st_size%4
+        if verbose:
+            print( r"[DEBUG] File size: {}".format(statinfo.st_size) )
+
+        with open(filepath, "rb") as fp:
+            data = fp.read()
+            if not self.download(address, data):
+                print("[ERROR] Download failed.")
+                return False
+
+        if not self.rx_check_expected(self.prompt):
+            return False
+
+        return True
+
+    # Receive a single byte/character from the serial (but do not have a look at the content and do not return it)
+    def rx_byte(self, verbose=True):
         cRx = self.ser.read(1)
-        print(r"Rx: {}".format( cRx ))
+
+        if verbose:
+            print(r"[INFO] Rx: {}".format( cRx ))
+
         if cRx == b'':
             return False
         else:
             return True
 
     # Receive a single byte/character from the serial
-    def tx_byte(self, value):
+    def tx_byte(self, value, verbose=True):
         cTx = value.encode('ascii')
-        print(r"Tx: {}".format( cTx ))
+
+        if verbose:
+            print(r"[INFO] Tx: {}".format( cTx ))
+
         if self.ser.write(cTx):
             return True
         else:
@@ -231,26 +316,30 @@ if __name__ == '__main__':
     parser.add_argument('-a', action="store", default=False,
                     required=True,
                     dest='address',
-                    help='start address')
+                    help="start address as hex string, without '0x' prefix")
 
     parser.add_argument('-e', action="store", default=False,
                     dest='endAddress',
-                    help='end address')
+                    help="end address as hex string, without '0x' prefix")
 
     parser.add_argument('-n', action="store", default=False,
                     dest='value',
-                    help='value to be set in setval[ue] command')
+                    help="value to be set in setval[ue] command, as hex string, without '0x' prefix")
 
     parser.add_argument('-b', action="store", default=False,
                     dest='txbyte',
-                    help='Byte to be transmittedin txb command')
+                    help='byte to be transmitted in txb command')
 
     parser.add_argument('-f', action="store", default=False,
                     dest='file',
                     help='path to a binary file')
 
+    parser.add_argument('-v', action="store", default=True,
+                    dest='verbosity',
+                    help='print detailed output')
+
     parser.add_argument('--version', action='version',
-                        version='%(prog)s 0.1')
+                        version='%(prog)s 0.2')
 
     args = parser.parse_args()
     #print(args)
@@ -267,90 +356,122 @@ if __name__ == '__main__':
         value = "{:08x}".format( int(args.value, 16) )
     
     fname = None
+    verbose=args.verbosity
+
     if args.file:
         # check if the file exists when it is going to be loaded (and optionally also executed)
         if cmd == 'load' or cmd == 'exec':
             if os.path.isfile(args.file):
-                print(r"[DEBUG] File '{}' exists.".format(args.file))
+                if verbose:
+                    print(r"[DEBUG] File '{}' exists.".format(args.file))
                 fname = args.file
             else:
                 print(r"[ERROR] File '{}' does not exist.".format(args.file))
+                sys.exit(12)
         else:
             fname = args.file
 
-    inst = snowbirdopter(serport=args.serport)
+    try:
+        inst = snowbirdopter(serport=args.serport, verbose=verbose)
 
-    if cmd == 'go':
-        if inst.go(address):
-            print("[INFO] Go command succeeded.")
-        else:
-            print("[ERROR] Go command failed.")
+        if cmd == 'go':
+            if inst.go(address, verbose):
+                if verbose:
+                    print("[INFO] Go command probably succeeded.")
+            else:
+                print("[ERROR] Go command failed.")
+                sys.exit(1)
 
-    elif cmd == 'dump':
-        if inst.dump(address, endAddress, fname):
-            print("[INFO] Dump succeeded.")
-        else:
-            print("[ERROR] Dump failed.")
+        elif cmd == 'dump':
+            if inst.dump(address, endAddress, fname, verbose):
+                if verbose:
+                    print("[INFO] Dump succeeded.")
+            else:
+                print("[ERROR] Dump failed.")
+                # sys.exit(2) # FIXME
 
-    elif cmd == 'setvalue' or cmd == 'setval':
-        if inst.setvalue(address, value):
-            print("[INFO] Setting value succeeded.")
-        else:
-            print("[ERROR] Setting value failed.")
+        elif cmd == 'setvalue' or cmd == 'setval':
+            if inst.setvalue(address, value, verbose):
+                if verbose:
+                    print("[INFO] Setting value succeeded.")
+            else:
+                print("[ERROR] Setting value failed.")
+                sys.exit(3)
 
-    elif cmd == 'load' or cmd == 'exec':
-        if inst.load_binfile(address, fname):
-            print("[INFO] Loading binfile succeeded.")
-            if cmd == 'exec':
-                if inst.go(address):
-                    print("[INFO] Executing binfile succeeded.")
-                else:
-                    print("[ERROR] Executing binfile failed.")
-        else:
-            print("[ERROR] Loading binfile failed.")
+        elif cmd == 'load' or cmd == 'exec': # load data/code (and eventually also execute code)
+            if inst.load_binfile(address, fname, verbose):
+                print("[INFO] Loading binfile succeeded.")
+                if cmd == 'exec':
+                    if inst.go(address):
+                        if verbose:
+                            print("[INFO] Executing binfile succeeded.")
+                    else:
+                        print("[ERROR] Executing binfile failed.")
+            else:
+                print("[ERROR] Loading binfile failed.")
+                sys.exit(4)
 
-    elif cmd == 'txb': # transmit byte
-        if inst.tx_byte(args.txbyte):
-            print("[INFO] Sending byte succeeded.")
-        else:
-            print("[ERROR] Sending byte failed.")
+        elif cmd == 'txb': # transmit byte
+            if inst.tx_byte(args.txbyte, verbose):
+                if verbose:
+                    print("[INFO] Sending byte succeeded.")
+            else:
+                print("[ERROR] Sending byte failed.")
+                sys.exit(5)
 
-    elif cmd == 'rxb': # receive byte
-        if inst.rx_byte():
-            print("[INFO] Receiving byte succeeded.")
-        else:
-            print("[ERROR] Receiving byte failed.")
-
-    elif cmd == 'trxb': # transmit byte and immediately receive byte
-        if inst.tx_byte(args.txbyte):
+        elif cmd == 'rxb': # receive byte
             if inst.rx_byte():
-                print("[INFO] Transceiving byte succeeded.")
+                print("[INFO] Receiving byte succeeded.")
+            else:
+                print("[ERROR] Receiving byte failed.")
+                sys.exit(6)
+
+        elif cmd == 'trxb': # transmit byte and immediately receive byte
+            if inst.tx_byte(args.txbyte, verbose):
+                if inst.rx_byte():
+                    if verbose:
+                        print("[INFO] Transceiving byte succeeded.")
+                else:
+                    print("[ERROR] Transceiving byte failed.")
+                    sys.exit(7)
             else:
                 print("[ERROR] Transceiving byte failed.")
-        else:
-            print("[ERROR] Transceiving byte failed.")
+                sys.exit(8)
 
-    elif cmd == 'txbrxl': # transmit byte and receive line
-        nLines = 1        
-        if args.value:
-            nLines = int(args.value)
-        if inst.tx_byte(args.txbyte):
+        elif cmd == 'txbrxl': # transmit byte and receive line
+            nLines = 1        
+            if args.value:
+                nLines = int(args.value)
+            if inst.tx_byte(args.txbyte, verbose):
+                for k in range(0, nLines):
+                    if not inst.readline(verbose=verbose):
+                        print("[ERROR] Transceiving byte failed.")
+                        sys.exit(8)
+                if verbose:
+                    print("[INFO] Transceiving byte succeeded.")    
+            else:
+                print("[ERROR] Transceiving byte failed.")
+                sys.exit(9)
+
+        elif cmd == 'rxl': # receive line(s), without any transmit
+            nLines = 1        
+            if args.value:
+                nLines = int(args.value)
             for k in range(0, nLines):
-                if not inst.readline():
-                    print("[ERROR] Transceiving byte failed.")
-            print("[INFO] Transceiving byte succeeded.")    
+                if not inst.readline(verbose=verbose):
+                    print("[ERROR] Receiving line(s) failed.")
+                    sys.exit(10)
+            if verbose:
+                print("[INFO] Receiving line(s) succeeded.")    
+
         else:
-            print("[ERROR] Transceiving byte failed.")
+            print(r"[ERROR] Unrecognized command.")
+            sys.exit(11)
 
-    elif cmd == 'rxl': # receive line(s), without any transmit
-        nLines = 1        
-        if args.value:
-            nLines = int(args.value)
-        for k in range(0, nLines):
-            if not inst.readline():
-                print("[ERROR] Receiving line(s) failed.")
-        print("[INFO] Receiving line(s) succeeded.")    
+        sys.exit(0)
 
-    else:
-        print(r"[ERROR] Unrecognized command.")
+    except Exception as ex:
+        print( r'[ERROR] Internal error occured. Exception: "{}".'.format(ex) )
+
+        sys.exit(99)
 
