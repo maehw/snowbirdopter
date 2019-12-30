@@ -79,10 +79,12 @@ python3 snowbirdopter.py -p /dev/ttyUSB0 -c dump -a 0
 
 The output should look similar to:
 
+> ```
 > [DEBUG] Serial port device name: '/dev/ttyUSB0'
 > [DEBUG] dump from 0x00000000 to 0x00000000
 > 0x00000000:  0xea000006
 > [INFO] Dump succeeded.
+> ```
 
 
 
@@ -94,17 +96,19 @@ python3 snowbirdopter.py -p /dev/ttyUSB0 -c exec -f ./examples/uart_hello_world/
 
 The output should look similar to:
 
+> ```
 > [DEBUG] File './examples/uart_hello_world/out.bin' exists.
 > [DEBUG] Serial port device name: '/dev/ttyUSB0'
 > [DEBUG] load_binfile('./examples/uart_hello_world/out.bin' at 0x08010000)
 > [DEBUG] File size: 120
 > [DEBUG] setvalue 0xeaffffff at 0x08010000
 > [DEBUG] setvalue 0xeb000000 at 0x08010004
-> ...
+> …
 > [INFO] Loading binfile succeeded.
 > [DEBUG] go to address 0x08010000
 > Read from serial: b'Hello Tiptoi! Hello world!\n'
 > [INFO] Executing binfile succeeded.
+> ```
 
 Note: The pen won't be responsive to further commands and will need to be power-cycled.
 
