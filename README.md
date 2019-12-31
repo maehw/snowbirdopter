@@ -165,8 +165,12 @@ Of course, you can also use your favorite reverse engineering framework for disa
 
 The name **snowbirdopter** derives from the codename of the tiptoi pen's ARM processor[^1]  *snowbird* and the greek word *pteron* "wing". The snowbirdopter shall be used to let the snowbird's wings move so that it can fly[^2]! In addition, in the English language an *opter* is someone who opts, or makes a choice[^3] - e.g. to run own open-source software on the target.
 
+
 [^0]: [tip-toi-reveng](https://github.com/entropia/tip-toi-reveng) github repository
+
 [^1]: probably with an ARM926EJ-S core
+
 [^2]: Have you ever heard about [ornithopters](https://en.wikipedia.org/wiki/Ornithopter)?
+
 [^3]: [Wiktionary: opter](https://en.wiktionary.org/wiki/opter)
 
