@@ -30,6 +30,10 @@ void main()
         	bootrom_uart_puts("Trying to boot via SPI flash.\n");
             bootrom_spiflash_boot();
             break;
+        case 'l':
+        case 'L':
+        	bootrom_uart_puts("Trying to boot via UART boot.\n");
+            bootrom_uartboot();
         case 'n':
         case 'N':
         default:

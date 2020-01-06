@@ -1,6 +1,6 @@
 # snowbirdopter
 
-The **snowbirdopter** is a tool which can be used to get memory dumps from the tiptoi pen[^0], to load arbitrary memory (code and data) into the pen's processor's memory and to execute binaries. It can also be used to exchange serial data (transmit and receive) over the UART interface to the pen.
+The **snowbirdopter** is a tool which can be used to get memory dumps from the tiptoi pen[^0], to load arbitrary memory (code and data) into the pen's processor's memory and to execute binaries. This can either be done via UART boot mode or via USB/SCSI in mass boot mode. It can also be used to exchange serial data (transmit and receive) over the UART interface with the pen.
 
 It can be used to find out more about the processor and the the whole tiptoi pen's execution environment, e.g. how embedded games can be analyzed, debugged or developed. The communication with the pen is based on its UART boot mode (details in the "Usage" section below). 
 
@@ -69,7 +69,7 @@ Done!
 
 
 
-## How to load and execute a binary
+## How to load and execute a binary (via serial)
 
 Before executing your first binary, it's recommended to check if the connection to the pen works by dumping the value at address `0x00000000` (addresses need to be given given as hex strings; they do not need to have a "0x" prefix, but they can):
 
@@ -79,12 +79,10 @@ python3 snowbirdopter.py -p /dev/ttyUSB0 -c dump -a 0
 
 The output should look similar to:
 
-> ```
 > [DEBUG] Serial port device name: '/dev/ttyUSB0'
 > [DEBUG] dump from 0x00000000 to 0x00000000
 > 0x00000000:  0xea000006
 > [INFO] Dump succeeded.
-> ```
 
 
 
@@ -96,19 +94,17 @@ python3 snowbirdopter.py -p /dev/ttyUSB0 -c exec -f ./examples/uart_hello_world/
 
 The output should look similar to:
 
-> ```
 > [DEBUG] File './examples/uart_hello_world/out.bin' exists.
 > [DEBUG] Serial port device name: '/dev/ttyUSB0'
 > [DEBUG] load_binfile('./examples/uart_hello_world/out.bin' at 0x08010000)
 > [DEBUG] File size: 120
 > [DEBUG] setvalue 0xeaffffff at 0x08010000
 > [DEBUG] setvalue 0xeb000000 at 0x08010004
-> …
+> ...
 > [INFO] Loading binfile succeeded.
 > [DEBUG] go to address 0x08010000
 > Read from serial: b'Hello Tiptoi! Hello world!\n'
 > [INFO] Executing binfile succeeded.
-> ```
 
 Note: The pen won't be responsive to further commands and will need to be power-cycled.
 

@@ -29,4 +29,15 @@ if [ -z "$massBootUsb" ]; then
 else
     usb-devices | grep -B2 -A2 -i "Vendor=04d6 ProdID=038d"
 fi
+echo
+
+echo "Devices with loaded producer"
+echo "---------------------------------------------------------------------------"
+
+producerUsb=$(usb-devices | grep -B2 -A2 -i "Vendor=115e ProdID=0003")
+if [ -z "$producerUsb" ]; then
+    echo "(empty output)"
+else
+    usb-devices | grep -B2 -A2 -i "Vendor=115e ProdID=0003"
+fi
 
