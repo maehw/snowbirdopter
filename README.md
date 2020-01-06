@@ -12,6 +12,21 @@ It can be used to find out more about the processor and the the whole tiptoi pen
 
 snowbirdopter is a command-line tool based on the Python3 scripting language, i.e. you currently need a Python3 interpreter running on your machine.
 
+If you get the following error message, you need to install the Serial Module for Python3 at first:
+```
+   Traceback (most recent call last):
+     File "snowbirdopter.py", line 3, in <module>
+       import serial
+   ModuleNotFoundError: No module named 'serial'
+```
+
+You can install the required Serial Module by the following commands:
+```
+sudo apt-get update
+sudo apt-get install python3-serial
+```
+
+
 To show the **snowbirdopter**'s usage enter:
 
 ```
