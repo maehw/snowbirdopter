@@ -62,6 +62,11 @@ Find out the serial device's port name on your system, e.g. "/dev/ttyUSB0" or "C
 
 The serial port settings *38400 baud*, *8N1* and *no handshakes* are automatically configured by the Python script.
 
+If Snowbirdopter reports
+```
+[ERROR] Internal error occured. Exception: "Serial device is not available."
+```
+you should check the access rights for your serial device's port and change them if necessary, eg. execute "sudo chmod 666 /dev/ttyUSB0".
 
 
 ## How to build a loadable and executable binary
