@@ -6,13 +6,18 @@ It can be used to find out more about the processor and the the whole tiptoi pen
 
 ***IMPORTANT: This software has been developed on an information basis compiled from information freely available on the Internet and confirmed by own experiments. It is provided without any guarantee and may be erroneous! We are not responsible when you brick your tiptoi pen!***
 
+## Contributing
 
+Feel free to make contributions to the source code to improve snowbirdopter by fixing bugs and adding new functionalities or examples! Please also check the [github issues page](https://github.com/maehw/snowbirdopter/issues) for known issues and enhancement requests.
 
-## Usage
+## Dependencies
 
-snowbirdopter is a command-line tool based on the Python3 scripting language, i.e. you currently need a Python3 interpreter running on your machine.
+snowbirdopter is a command-line tool based on the [Python3](http://python.org/) scripting language, i.e. you currently need a Python3 interpreter running on your machine.
 
-If you get the following error message, you need to install the Serial Module for Python3 at first:
+It also depends on the [pySerial](https://pyserial.readthedocs.io/en/latest/pyserial.html) package which It provides backends for Python running on Windows, OSX, Linux and others. There are various ways to install the package, which are described on their website.
+
+If the package is not installed you will get the following or a similar error message:
+
 ```
    Traceback (most recent call last):
      File "snowbirdopter.py", line 3, in <module>
@@ -20,12 +25,8 @@ If you get the following error message, you need to install the Serial Module fo
    ModuleNotFoundError: No module named 'serial'
 ```
 
-You can install the required Serial Module by the following commands:
-```
-sudo apt-get update
-sudo apt-get install python3-serial
-```
 
+## Usage
 
 To show the **snowbirdopter**'s usage enter:
 
@@ -33,9 +34,31 @@ To show the **snowbirdopter**'s usage enter:
 python3 snowbirdopter.py -h
 ```
 
-Feel free to make contributions to the source code to improve snowbirdopter by fixing bugs and adding new functionalities or examples!
+The output should look similar to:
 
+```
+usage: snowbirdopter.py [-h] [-p SERPORT] [-s SCSIDEV] -c COMMAND -a ADDRESS
+                        [-e ENDADDRESS] [-n VALUE] [-b TXBYTE] [-f FILE]
+                        [-v VERBOSITY] [--version]
 
+snowbirdopter.py
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -p SERPORT     serial device port name (e.g. '/dev/ttyUSB0' or 'COM1';
+                 default: '/dev/ttyUSB0')
+  -s SCSIDEV     generic SCSI device file name (e.g. '/dev/sg2')
+  -c COMMAND     command (dump, setval[ue], go, load, exec, txb, rxb, trxb,
+                 txbrxl)
+  -a ADDRESS     start address as hex string, without '0x' prefix
+  -e ENDADDRESS  end address as hex string, without '0x' prefix
+  -n VALUE       value to be set in setval[ue] command, as hex string, without
+                 '0x' prefix
+  -b TXBYTE      byte to be transmitted in txb command
+  -f FILE        path to a binary file
+  -v VERBOSITY   print detailed output
+  --version      show program's version number and exit
+```
 
 ### Commands
 
@@ -43,7 +66,7 @@ The currently supported commands are:
 
 | command    | description                                                  |
 | ---------- | ------------------------------------------------------------ |
-| dump       | Dump memory from a specific address or address range<br />(dumps to *stdout* in a human-readable format, optionally also dumps to a binary file) |
+| dump       | Dump memory from a specific address or address range<br />(dumps to *stdout* in a human-readable format, optionally also dumps to a raw binary file) |
 | setval[ue] | Set a 32-bit word at a specific address                      |
 | go         | Execute the code located at a given address (address given by -a) |
 | load       | Load a binary executable from the file system to the target (at address given by -a) |
@@ -54,6 +77,7 @@ The currently supported commands are:
 | txbrxl     | Transmit a single byte (-b) to serial and immediately read back one or several lines from the serial |
 | rxl        | Read one or several lines from the serial                    |
 
+
 ### Serial connection
 
 Connect your USB/serial converter to the tiptoi pen (with 3.3V logic levels!). Enter the pen's UART boot mode, a detailed description can be found in [this tip-toi-reveng wiki article](https://github.com/entropia/tip-toi-reveng/wiki/PEN-Hardware-Details).
@@ -62,16 +86,20 @@ Find out the serial device's port name on your system, e.g. "/dev/ttyUSB0" or "C
 
 The serial port settings *38400 baud*, *8N1* and *no handshakes* are automatically configured by the Python script.
 
-If Snowbirdopter reports
+
+
+If snowbirdopter reports
 ```
 [ERROR] Internal error occured. Exception: "Serial device is not available."
 ```
-you should check the access rights for your serial device's port and change them if necessary, eg. execute "sudo chmod 666 /dev/ttyUSB0".
+and you are sure that the given device exists you should check the access rights for your serial device's port and change them if necessary, e.g. execute `sudo chmod 666 /dev/ttyUSB0`. Please check [the web](https://askubuntu.com/questions/58119/changing-permissions-on-serial-port) for alternatives like `udev` rules or permission groups.
+
+
 
 
 ## How to build a loadable and executable binary
 
-Get an ARM cross-compiler, e.g. GCC. For Linux the process looks as follows:
+You will find pre-compiled binaries in the examples/ subfolder. To modify them or run your own code you'll need to get an ARM cross-compiler, e.g. GCC. For Linux the process looks as follows:
 
 ```
 sudo apt install binutils-arm-linux-gnueabi
