@@ -20,16 +20,17 @@ class snowbirdopter:
         '''Initialize serial and optionally also SCSI device'''
         
         # initialize serial device
-        try:
-            self.ser = serial.Serial(serport, 38400, timeout=2, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0, rtscts=0)
-            self.validSerialDev = True
-        except serial.serialutil.SerialException:
-            if verbose:
-                print(r"[DEBUG] Serial device is not available." )
-            raise ValueError('Serial device is not available.')
+        if serport is not False:
+            try:
+                self.ser = serial.Serial(serport, 38400, timeout=2, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=1, xonxoff=0, rtscts=0)
+                self.validSerialDev = True
+            except serial.serialutil.SerialException:
+                if verbose:
+                    print(r"[DEBUG] Serial device is not available." )
+                raise ValueError('Serial device is not available.')
 
-        if self.validSerialDev and verbose:
-                print(r"[DEBUG] Serial device port name: '{}'".format(self.ser.name) )
+            if self.validSerialDev and verbose:
+                    print(r"[DEBUG] Serial device port name: '{}'".format(self.ser.name) )
         
         # optionally also initialize SCSI device
         if scsidev is not False:
@@ -171,8 +172,7 @@ class snowbirdopter:
                 line = line.decode("ascii").rstrip()
                 
                 rawData = line.split('\t', 5)
-                if verbose:
-                    print( r"[DEBUG] {}".format( '  '.join(rawData) ) )
+                print( r"[INFO] {}".format( '  '.join(rawData) ) )
 
                 # further processing to store it in a binary file
                 # skip address as the memory values are in consecutive order without gaps
@@ -236,6 +236,7 @@ class snowbirdopter:
             expectedMsg = str.format("Received {} bytes of data", dumpLenAsNum)
 
         if proc.returncode == 0 and proc.stdout == '' and ("SCSI Status: Good" in proc.stderr) and (expectedMsg in proc.stderr):
+            print( r"[INFO] {}".format(proc.stderr) )
             return True
         else:
             print( r"[ERROR] Raw SCSI command did not work as expected. (proc: {})".format(proc) )
@@ -588,9 +589,9 @@ class snowbirdopter:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='%(prog)s')
 
-    parser.add_argument('-p', action="store", default='/dev/ttyUSB0', 
+    parser.add_argument('-p', action="store", default=False, 
                     dest='serport',
-                    help="serial device port name (e.g. '/dev/ttyUSB0' or 'COM1'; default: '/dev/ttyUSB0')")
+                    help="serial device port name (e.g. '/dev/ttyUSB0' or 'COM1')")
 
     parser.add_argument('-s', action="store", default=False, 
                     dest='scsidev',
@@ -651,6 +652,14 @@ if __name__ == '__main__':
         print( r"[DEBUG] Platform: {}".format( platformType ) )
     if platformType != "Linux":
         print( "[WARNING] Not run under Linux. SCIS commands won't be supported on this platform." )
+
+    if not args.serport:
+        if cmd in ['txb', 'rxb', 'trxb', 'txbrxl', 'rxl']:
+            print( r"[ERROR] Command '{}' needs a serial (-p) device.".format(cmd) )
+            sys.exit(13)
+        if not args.scsidev:
+            print( "[ERROR] At least a serial (-p) or an SCSI device (-s) needs to be given." )
+            sys.exit(14)
 
     if args.file:
         # check if the file exists when it is going to be loaded (and optionally also executed)
