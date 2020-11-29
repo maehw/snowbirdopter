@@ -183,7 +183,7 @@ The output should look similar to:
 > Read from serial: b'Hello Tiptoi! Hello world!\n'
 > [INFO] Executing binfile succeeded.
 
-Note: The pen won't be responsive to further commands and will need to be power-cycled.
+**Important note**: The pen won't be responsive to further commands and will need to be power-cycled.
 
 There are already some more examples in the *examples/* subdirectory. Feel free to analyze, execute them on the pen and modify them according to your needs.
 
