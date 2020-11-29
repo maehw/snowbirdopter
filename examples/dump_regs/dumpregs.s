@@ -295,7 +295,7 @@ _dump_regs:
     mov r0, sp
     bl 0x159C
 
-    mov r0, #49
+    mov r0, #48
     bl 0x1504
 
     mov r0, #58
