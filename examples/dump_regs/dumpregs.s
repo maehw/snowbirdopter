@@ -1,14 +1,19 @@
-dump_regs:
-    push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r14} @ r10/sl, r11/fp, r12/ip, r14/lr; do not store r13/sp and r15/pc on the stack!
+.section .text
+.global _dump_regs
+
+_dump_regs:
+    push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, lr} @ r10/sl, r11/fp, r12/ip, r14/lr; do not store r13/sp and r15/pc on the stack!
 
     mov r4, sp
 
-    mov r0, #0x72000000
-    push {r0} @ 'r\0\0\0'
-    orr r0, #0x00650000
-    orr r0, #0x00006700
-    orr r0, #0x00000020
-    push {r0} @ 'reg '
+    mov r0, #0x00000072
+    push {r0} @ '\0\0\0r' (reverse byte order of "r")
+
+    orr r0, #0x00006500
+    orr r0, #0x00670000
+    orr r0, #0x20000000
+    push {r0} @ ' ger' (reverse byte order of "reg ")
+
 
     @ init the UART
     bl 0x10D8
@@ -27,9 +32,9 @@ dump_regs:
     bl 0x1504
 
     mov r0, pc @ offset as we are in the middle of this function
-    bl 0x1504
+    bl 0x1810
 
-    mov r0, #10
+    mov r0, #44
     bl 0x1504
 
 
@@ -47,9 +52,9 @@ dump_regs:
     bl 0x1504
 
     ldr r0, [r4]
-    bl 0x1504
+    bl 0x1810
 
-    mov r0, #10
+    mov r0, #44
     bl 0x1504
 
 
@@ -67,7 +72,7 @@ dump_regs:
     bl 0x1504
 
     mov r0, r4 @ offset by number of stored registers
-    bl 0x1504
+    bl 0x1810
 
     mov r0, #10
     bl 0x1504
@@ -87,9 +92,9 @@ dump_regs:
     bl 0x1504
 
     ldr r0, [r4, #4]
-    bl 0x1504
+    bl 0x1810
 
-    mov r0, #10
+    mov r0, #44
     bl 0x1504
 
 
@@ -105,12 +110,13 @@ dump_regs:
     bl 0x1504
 
     ldr r0, [r4, #8]
+    bl 0x1810
+
+    mov r0, #44
     bl 0x1504
 
-    mov r0, #10
-    bl 0x1504
 
-
-    add sp, sp, #8
-    pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r14}
+    pop {r0}
+    pop {r0}
+    pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, pc}
 
