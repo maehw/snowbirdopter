@@ -74,7 +74,7 @@ _dump_regs:
     mov r0, r4 @ offset by number of stored registers
     bl 0x1810
 
-    mov r0, #10
+    mov r0, #44
     bl 0x1504
 
 
@@ -105,8 +105,10 @@ _dump_regs:
     mov r0, #49
     bl 0x1504
 
-    mov r0, #50
+    mov r0, #49
     bl 0x1504
+
+    mov r0, #58
     bl 0x1504
 
     ldr r0, [r4, #8]
