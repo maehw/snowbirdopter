@@ -1,14 +1,18 @@
 # snowbirdopter
 
-The **snowbirdopter** is a tool which can be used to get memory dumps from the tiptoi pen[^0], to load arbitrary memory (code and data) into the pen's processor's memory and to execute binaries. This can either be done via UART boot mode or via USB/SCSI in mass boot mode. It can also be used to exchange serial data (transmit and receive) over the UART interface with the pen.
+The **snowbirdopter** is a tool which can be used to get memory dumps from the tiptoi pen[^0], to load arbitrary memory (code and data) into the pen's processor's memory and to execute binaries. This can either be done via UART boot mode or via USB/SCSI in mass boot mode for firmware update (not the "normal" mass boot mode). It can also be used to exchange serial data (transmit and receive) over the UART interface with the pen.
 
 It can be used to find out more about the processor and the the whole tiptoi pen's execution environment, e.g. how embedded games can be analyzed, debugged or developed. The communication with the pen is based on its UART boot mode (details in the "Usage" section below). 
 
 ***IMPORTANT: This software has been developed on an information basis compiled from information freely available on the Internet and confirmed by own experiments. It is provided without any guarantee and may be erroneous! We are not responsible when you brick your tiptoi pen!***
 
+
+
 ## Contributing
 
 Feel free to make contributions to the source code to improve snowbirdopter by fixing bugs and adding new functionalities or examples! Please also check the [github issues page](https://github.com/maehw/snowbirdopter/issues) for known issues and enhancement requests.
+
+
 
 ## Dependencies
 
@@ -24,6 +28,7 @@ If the package is not installed you will get the following or a similar error me
        import serial
    ModuleNotFoundError: No module named 'serial'
 ```
+
 
 
 ## Usage
@@ -60,6 +65,7 @@ optional arguments:
   --version      show program's version number and exit
 ```
 
+
 ### Commands
 
 The currently supported commands are:
@@ -78,9 +84,32 @@ The currently supported commands are:
 | rxl        | Read one or several lines from the serial                    |
 
 
-### Serial connection
 
-Connect your USB/serial converter to the tiptoi pen (with 3.3V logic levels!). Enter the pen's UART boot mode, a detailed description can be found in [this tip-toi-reveng wiki article](https://github.com/entropia/tip-toi-reveng/wiki/PEN-Hardware-Details).
+## Tiptoi special pins
+
+The following information is taken from https://github.com/entropia/tip-toi-reveng/wiki/PEN-Hardware-Details:
+
+| Pin             | Function                                                     |
+| --------------- | ------------------------------------------------------------ |
+| GPIO13 (pin 39) | UART TX* pin + mass storage boot selector pin<br />(pull to low by a 1 kOhm resistor to enter mass boot mode for firmware update) |
+| GPIO9 (pin 37)  | UART boot selector pin<br />(pulled to low by a 1 kOhm resistor to enter UART boot mode) |
+| GPIO12 (pin 36) | UART RX* pin                                                 |
+
+*TX/RX as seen from the device, i.e. RX/TX as seen from the PC.
+
+To enter and manually use boot mode:
+
+* Connect your USB/serial converter to the UART TX and RX pins.
+* Open a serial terminal program, e.g. *moserial*, *HTerm*, etc. and connect with *38400 baud*, *8N1* and *no handshakes*.
+* Pull GPIO9 high.
+* Power the tiptoi pen.
+* The string `"SNOWBIRD2-BIOS>#"` is sent via UART TX pin immediately after start-up.
+
+
+
+## Serial connection
+
+Connect your USB/serial converter to the tiptoi pen (with 3.3V logic levels!). Enter the pen's UART boot mode (*at your own risk*!).
 
 Find out the serial device's port name on your system, e.g. "/dev/ttyUSB0" or "COM1". Under Windows this can be done by opening the *device manager*. Under Linux you can open a command line window, go to the */dev/* directory and list all USB tty devices, i.e. `ls -al ttyUSB*`.
 
@@ -113,7 +142,7 @@ make clean
 make
 ```
 
-Done!
+Done! You're now able to load and execute it on the target, see next section.
 
 
 
@@ -156,7 +185,7 @@ The output should look similar to:
 
 Note: The pen won't be responsive to further commands and will need to be power-cycled.
 
-There are already some more examples in the *examples/* subdirectory. Feel free to analyze, execute them on the pen and modify them for your needs.
+There are already some more examples in the *examples/* subdirectory. Feel free to analyze, execute them on the pen and modify them according to your needs.
 
 
 
