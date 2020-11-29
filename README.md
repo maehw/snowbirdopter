@@ -82,7 +82,7 @@ The currently supported commands are:
 
 Connect your USB/serial converter to the tiptoi pen (with 3.3V logic levels!). Enter the pen's UART boot mode, a detailed description can be found in [this tip-toi-reveng wiki article](https://github.com/entropia/tip-toi-reveng/wiki/PEN-Hardware-Details).
 
-Find out the serial device's port name on your system, e.g. "/dev/ttyUSB0" or "COM1".
+Find out the serial device's port name on your system, e.g. "/dev/ttyUSB0" or "COM1". Under Windows this can be done by opening the *device manager*. Under Linux you can open a command line window, go to the */dev/* directory and list all USB tty devices, i.e. `ls -al ttyUSB*`.
 
 The serial port settings *38400 baud*, *8N1* and *no handshakes* are automatically configured by the Python script.
 

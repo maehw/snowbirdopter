@@ -69,7 +69,9 @@ class snowbirdopter:
         line = self.ser.readline()
         if verbose:
             print(r"[INFO] Read from serial: {}".format(line) )
-        return True
+
+        line = line.decode("ascii").rstrip()
+        return line
 
     def trx_line(self, line, rxEcho=True, checkEcho=True):
         '''Transmit a line from serial byte per byte and wait for echo after each byte; check returned value per default'''
@@ -88,52 +90,53 @@ class snowbirdopter:
                     return False
         return True
 
-    def rx_check_expected(self, exp):
-        '''Receive data from serial until expected string appears or timeout occurs'''
-        
-        if not self.validSerialDev:
-            print( r"[ERROR] No valid serial device." )
+        line = True
+        while line:
+            line = self.ser.readline()
+            if line == self.prompt:
+                # Prompt appeared, the dump has finished.
+                break
+            else:
+                line = line.decode("ascii").rstrip()
+                
+                rawData = line.split('\t', 5)
+                print( r"[INFO] {}".format( '  '.join(rawData) ) )
+
+                # further processing to store it in a binary file
+                # skip address as the memory values are in consecutive order without gaps
+                for i in range(1, len(rawData) ):
+                    value = int(rawData[i], 16)
+                    if fp:
+                        fp.write(value.to_bytes(4, byteorder='little', signed=False))
+
+        if fp:
+            fp.close()
+
+        # check last line again
+        if not line == self.prompt:
             return False
-        
-        resp = self.ser.read_until(exp)
-        if resp == exp:
-            return True
         else:
-            print(r"[ERROR] resp: {} != exp: {}".format( resp, exp ))
-            return False
+            return True
 
     def dump(self, startAddr, endAddr, filepath=None, verbose=True):
         '''Generic implementation of the dump command
-        
+         
         Execute dump command via serial or SCSI.
-        Can optionally also dump to a binary file
         '''
-
-        startAddr = startAddr.lower()
-        endAddr = endAddr.lower()
-
-        if verbose:
-            if filepath:
-                print(r"[DEBUG] dump from 0x{} to 0x{}, store in binfile '{}'".format(startAddr, endAddr, filepath) )
-            else:
-                print(r"[DEBUG] dump from 0x{} to 0x{}".format(startAddr, endAddr) )
 
         if self.validScsiDev:
             ret = self.dump_scsi(startAddr, endAddr, filepath, verbose)
         else:
             ret = self.dump_serial(startAddr, endAddr, filepath, verbose)
-
-        if verbose:
-            print(r"[DEBUG] Return value from specific dump: {}".format(ret) )
         return ret
 
     def dump_serial(self, startAddr, endAddr, filepath=None, verbose=True):
         '''Implementation of the dump command (via serial)'''
-        
+
         if not self.validSerialDev:
             print( r"[ERROR] No valid serial device." )
             return False
-        
+
         cmd = b'dump\r'
         if not self.trx_line(cmd):
             return False
@@ -170,7 +173,7 @@ class snowbirdopter:
                 break
             else:
                 line = line.decode("ascii").rstrip()
-                
+
                 rawData = line.split('\t', 5)
                 print( r"[INFO] {}".format( '  '.join(rawData) ) )
 
