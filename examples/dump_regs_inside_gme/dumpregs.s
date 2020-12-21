@@ -1,7 +1,32 @@
 .section .text
 .global _dump_regs
 
+_still_works:
+    push {r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    bl _dump_regs
+    ldr	r5, [r0, #52]	@ 0x34
+    mov	r4, r0
+    ldrb r0, [r5, #293]	@ 0x125
+    add	r0, r0, #1
+    strb r0, [r5, #293]	@ 0x125
+    pop	{r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
 _dump_regs:
+    push {r0, lr}
+
+    bl 0x10D8
+
+    mov r0, #90
+    bl 0x1504
+
+    b 0 @ reset
+
+_loop:
+    b _loop
+
+    pop {r0, pc}
+
+_anonymous:
     @ https://stackoverflow.com/questions/47109767/push-and-pop-order-in-arm/47109995:
     @ "When you PUSH or POP a bunch of registers, they always go into memory in the same relative positions, regardless of direction.
     @  The lowest-numberd register is stored at and loaded from the lowest address."
