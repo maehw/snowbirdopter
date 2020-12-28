@@ -13,8 +13,25 @@ void main()
 
     for(;;)
     {
+#if 1
         swuart_puts("Hello world!\n");
+#endif
+
+#if 0
+        /* query USB detection pin (GPIO8) */
+        *pREG_GPIO_DIR_1 |= (1 << 8);
+
+        if( *pREG_GPIO_IN_1 & (1 << 8) )
+        {
+            swuart_puts("USB plugged in.\n");
+        }
+        else
+        {
+            swuart_puts("USB not plugged in.\n");
+        }
+#endif
     }
+
 }
 
 void swuart_init(void)
