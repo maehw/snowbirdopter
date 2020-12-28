@@ -7,20 +7,21 @@ inline void swuart_bitdelay(void);
 inline void swuart_putbit(bool bHighLow);
 void swuart_puts(char* pcString);
 
+#define CHECK_USB_CABLE
+
 void main()
 {
     swuart_init();
 
-    for(;;)
-    {
-#if 1
-        swuart_puts("Hello world!\n");
+#ifdef CHECK_USB_CABLE
+    /* allow querying of USB detection pin (GPIO8) */
+    *pREG_GPIO_DIR_1 |= (1 << 8);
 #endif
 
-#if 0
+    for(;;)
+    {
+#ifdef CHECK_USB_CABLE
         /* query USB detection pin (GPIO8) */
-        *pREG_GPIO_DIR_1 |= (1 << 8);
-
         if( *pREG_GPIO_IN_1 & (1 << 8) )
         {
             swuart_puts("USB plugged in.\n");
@@ -29,6 +30,8 @@ void main()
         {
             swuart_puts("USB not plugged in.\n");
         }
+#else
+        swuart_puts("Hello world!\n");
 #endif
     }
 
