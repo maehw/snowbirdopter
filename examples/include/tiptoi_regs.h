@@ -2,6 +2,8 @@
 #define __TIPTOI_REGS_H__
 
 // The following hardware registers have been found and (mostly) understood what they are used for
+volatile int* const pREG_CLOCK_DIV1 = (int*)0x4000004;
+volatile int* const pREG_CLOCK_DIV2 = (int*)0x4000008;
 volatile int* const pREG_BOOT_MODE = (int*)0x04000054;
 volatile int* const pREG_SHARE_PIN_CTRL = (int*)0x4000074; /* value in UART boot is read as 0x00005001; it seems that bit 0 is responsible for UART TX */
 volatile int* const pREG_GPIO_DIR_1 = (int*)0x400007c;

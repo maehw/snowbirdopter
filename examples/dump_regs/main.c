@@ -20,18 +20,23 @@ void main()
     // Dump some more registers
     uart_puts("Peripherals register dump:");
 
+    uart_puts("REG_CLOCK_DIV1:");
+    nRegVal = *pREG_CLOCK_DIV1;
+    uart_put_num2hex(nRegVal);
+	uart_putc(',');
+
+    uart_puts("REG_CLOCK_DIV2:");
+    nRegVal = *pREG_CLOCK_DIV2;
+    uart_put_num2hex(nRegVal);
+	uart_putc(',');
+
     uart_puts("REG_SHARE_PIN_CTRL:");
     nRegVal = *pREG_SHARE_PIN_CTRL;
     uart_put_num2hex(nRegVal);
 	uart_putc(',');
 	
-    uart_puts("REG_GPIO_DIR_1:");
-    nRegVal = *pREG_GPIO_DIR_1;
-    uart_put_num2hex(nRegVal);
-	uart_putc(',');
-
-    uart_puts("REG_GPIO_OUT_1:");
-    nRegVal = *pREG_GPIO_OUT_1;
+    uart_puts("REG_BOOT_MODE:");
+    nRegVal = *pREG_BOOT_MODE;
     uart_put_num2hex(nRegVal);
 	uart_putc(',');
 
@@ -64,10 +69,11 @@ void main()
 
 int uart_init(void)
 {
+    int nBaudRateDiv = 0x0619; // leads to a baud rate of 38400; 0xC32 = 2*0x619: leads to baud rate of 19200
     *pREG_SHARE_PIN_CTRL = *pREG_SHARE_PIN_CTRL | 1;
     *pREG_TBD = *pREG_TBD & 0xfc0fffff;
     *pREG_TBD = *pREG_TBD | 0x2f00020;
-    *pREG_UART_CFG1 = 0x30200619;
+    *pREG_UART_CFG1 = 0x30200000 | nBaudRateDiv;
     *pREG_UART_TXRX_BUF_THRESHOLD = 0;
     return 0;
 }
