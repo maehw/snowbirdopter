@@ -22,292 +22,292 @@ _dump_regs:
 
     @ dump stored r0
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #48
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #0]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r1
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #4]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r2
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #50
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #8]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r3
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #51
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #12]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r4
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #52
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #16]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r5
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #53
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #20]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r6
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #54
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #24]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r7
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #55
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #28]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r8
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #56
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #32]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r9
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #57
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #36]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r10
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #48
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #40]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r11
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #44]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r12
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #50
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #48]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r13/sp
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #51
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     mov r0, r4 @ use stack pointer (sp) stored after epilog
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump stored r14/lr
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #52
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     ldr r0, [r4, #52]
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
 
     @ dump current r15/pc
     mov r0, sp
-    bl 0x159C
+    bl uart_puts
 
     mov r0, #49
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #53
-    bl 0x1504
+    bl uart_putc
 
     mov r0, #58
-    bl 0x1504
+    bl uart_putc
 
     mov r0, pc
-    bl 0x1810
+    bl uart_put_num2hex
 
     mov r0, #44
-    bl 0x1504
+    bl uart_putc
 
     add sp, #8 @ to pop 2 elements with constant string
     pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, pc}

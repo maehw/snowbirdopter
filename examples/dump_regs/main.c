@@ -2,9 +2,11 @@
 
 extern void _dump_regs(void);
 
-static int uart_init(void);
-static int uart_putc(int c);
-static void uart_puts(char* pcString);
+/* These functions are interface compatible with the Boot ROM functions */
+int uart_init(void);
+int uart_putc(int c);
+void uart_puts(char* pcString);
+void uart_put_num2hex(int nNum);
 
 void main()
 {
@@ -15,47 +17,47 @@ void main()
 
 	_dump_regs();
 
-	uart_putc(',');
-
     // Dump some more registers
+    uart_puts("Peripherals register dump:");
+
     uart_puts("REG_SHARE_PIN_CTRL:");
     nRegVal = *pREG_SHARE_PIN_CTRL;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 	uart_putc(',');
 	
-    bootrom_uart_puts("REG_GPIO_DIR_1:");
+    uart_puts("REG_GPIO_DIR_1:");
     nRegVal = *pREG_GPIO_DIR_1;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 	uart_putc(',');
 
-    bootrom_uart_puts("REG_GPIO_OUT_1:");
+    uart_puts("REG_GPIO_OUT_1:");
     nRegVal = *pREG_GPIO_OUT_1;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 	uart_putc(',');
 
-    bootrom_uart_puts("REG_GPIO_DIR_2:");
+    uart_puts("REG_GPIO_DIR_2:");
     nRegVal = *pREG_GPIO_DIR_2;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 	uart_putc(',');
 
-    bootrom_uart_puts("REG_GPIO_OUT_2:");
+    uart_puts("REG_GPIO_OUT_2:");
     nRegVal = *pREG_GPIO_OUT_2;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 	uart_putc(',');
 
-    bootrom_uart_puts("REG_TBD:");
+    uart_puts("REG_TBD:");
     nRegVal = *pREG_TBD;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 	uart_putc(',');
 
-    bootrom_uart_puts("REG_UART_CFG1:");
+    uart_puts("REG_UART_CFG1:");
     nRegVal = *pREG_UART_CFG1;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 	uart_putc(',');
 
-    bootrom_uart_puts("REG_UART_TXRX_BUF_THRESHOLD:");
+    uart_puts("REG_UART_TXRX_BUF_THRESHOLD:");
     nRegVal = *pREG_UART_TXRX_BUF_THRESHOLD;
-    bootrom_uart_put_num2hex(nRegVal);
+    uart_put_num2hex(nRegVal);
 
 	uart_putc('\n');
 }
@@ -93,4 +95,29 @@ void uart_puts(char* pcString)
         uart_putc(*pcChar++);
     }
 }
+
+void uart_put_num2hex(int nNum)
+{
+    int nNibble;
+    char cChar;
+
+    /* print additional prefix? */
+    //uart_putc( '0' );
+    //uart_putc( 'x' );
+
+    /* iterate through the 8 nibbles and print each nibble separately */
+    for(nNibble = 7; nNibble >= 0; nNibble--)
+    {
+        cChar = (nNum >> (nNibble*4)) & 0xf;
+        if(cChar >= 0x0 && cChar < 0xa)
+        {
+            uart_putc( 0x30 + cChar );
+        }
+        else /* if(cChar >= 0xa && cChar <= 0xf) */
+        {
+            uart_putc( 0x61 - 0xa + cChar );
+        }
+    }
+}
+
 
