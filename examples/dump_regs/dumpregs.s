@@ -5,6 +5,8 @@ _dump_regs:
     @ https://stackoverflow.com/questions/47109767/push-and-pop-order-in-arm/47109995:
     @ "When you PUSH or POP a bunch of registers, they always go into memory in the same relative positions, regardless of direction.
     @  The lowest-numberd register is stored at and loaded from the lowest address."
+    @
+    @ make sure that the UART has already been initialized by the caller
     push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, lr} @ r10/sl, r11/fp, r12/ip, r14/lr; do not store r13/sp and r15/pc on the stack!
 
     mov r4, sp
@@ -16,10 +18,6 @@ _dump_regs:
     orr r0, #0x00670000
     orr r0, #0x20000000
     push {r0} @ ' ger' (reverse byte order of "reg ")
-
-
-    @ init the UART
-    bl 0x10D8
 
 
     @ dump stored r0
