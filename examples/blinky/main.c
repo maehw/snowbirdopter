@@ -3,18 +3,33 @@
 void uart_deinit(void);
 inline void delay_1sec(void);
 
+/* Define which GPIO(s)/LED(s) you want to toggle/blink */
+#define BLINK_GPIO12 1
+#define BLINK_GPIO13 1
+
 void main()
 {
     uart_deinit();
 
     // initialize GPIOs: write direction bit zero for GPIO as output
-    *pREG_GPIO_DIR_1 = *pREG_GPIO_DIR_1 & ~(1 << 13);
-    *pREG_GPIO_OUT_1 = *pREG_GPIO_OUT_1 & ~(1 << 13);
+#if BLINK_GPIO12
+    *pREG_GPIO_DIR_1 &= ~(1 << 12);
+    *pREG_GPIO_OUT_1 &= ~(1 << 12);
+#endif
+#if BLINK_GPIO13
+    *pREG_GPIO_DIR_1 &= ~(1 << 13);
+    *pREG_GPIO_OUT_1 &= ~(1 << 13);
+#endif
 
     for(;;) // toggle endlessly
     {
+#if BLINK_GPIO12
+        *pREG_GPIO_OUT_1 ^= (1 << 12); // toggle pin GPIO12
+#endif
         delay_1sec();
-        *pREG_GPIO_OUT_1 ^= (1 << 13); // toggle pin
+#if BLINK_GPIO13
+        *pREG_GPIO_OUT_1 ^= (1 << 13); // toggle pin GPIO13
+#endif
     }
 }
 
