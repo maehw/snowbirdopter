@@ -5,15 +5,15 @@ inline void delay_1sec(void);
 
 void main()
 {
-	uart_deinit();
-	
+    uart_deinit();
+
     // initialize GPIOs: write direction bit zero for GPIO as output
-	*pREG_GPIO_DIR_1 = *pREG_GPIO_DIR_1 & ~(1 << 13);
+    *pREG_GPIO_DIR_1 = *pREG_GPIO_DIR_1 & ~(1 << 13);
     *pREG_GPIO_OUT_1 = *pREG_GPIO_OUT_1 & ~(1 << 13);
-	
+
     for(;;) // toggle endlessly
-	{
-    	delay_1sec();
+    {
+        delay_1sec();
         *pREG_GPIO_OUT_1 ^= (1 << 13); // toggle pin
     }
 }
