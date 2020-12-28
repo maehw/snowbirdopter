@@ -1,19 +1,40 @@
 #include "tiptoi.h"
 
-//extern void _still_works(unsigned int* a, unsigned int* b, unsigned char* c, unsigned int d);
+extern void _dump_regs(void);
 
-int my_uart_init(void);
-int my_uart_putc(int c);
+/* These functions are interface compatible with the Boot ROM functions */
+int uart_init(void);
+int uart_putc(int c);
+void uart_puts(char* pcString);
+void uart_put_num2hex(int nNum);
+
+inline void delay_1sec(void);
+
 
 void main()
 {
-    my_uart_init();
-    my_uart_putc('X');
-    my_uart_putc('Y');
-    my_uart_putc('Z');
-    my_uart_putc('\n');
-    while(1) {};
-    /* Note: dumpregs.s is currently not used */
+    // the following lines should blink/toggle GPIO13 endlessly
+    *pREG_SHARE_PIN_CTRL = *pREG_SHARE_PIN_CTRL & 0xfffffffe;
+
+    // initialize GPIOs: write direction bit zero for GPIO as output
+    *pREG_GPIO_DIR_1 = *pREG_GPIO_DIR_1 & ~(1 << 13);
+    *pREG_GPIO_OUT_1 = *pREG_GPIO_OUT_1 & ~(1 << 13);
+
+    for(;;) // toggle endlessly
+    {
+        delay_1sec();
+        *pREG_GPIO_OUT_1 ^= (1 << 13); // toggle pin
+    }
+}
+
+inline void delay_1sec(void)
+{
+    volatile int nDelay = 0;
+    /* delay for about 1 second (empirical) */
+    for(nDelay = 0; nDelay < (1 << 20); nDelay++)
+    {
+        asm("nop;");
+    }
 }
 
 #if 0
@@ -41,17 +62,18 @@ void main()
 
 #endif
 
-int my_uart_init(void)
+int uart_init(void)
 {
+    int nBaudRateDiv = 0x0619; // leads to a baud rate of 38400; 0xC32 = 2*0x619: leads to baud rate of 19200
     *pREG_SHARE_PIN_CTRL = *pREG_SHARE_PIN_CTRL | 1;
     *pREG_TBD = *pREG_TBD & 0xfc0fffff;
     *pREG_TBD = *pREG_TBD | 0x2f00020;
-    *pREG_UART_CFG1 = 0x30200619;
+    *pREG_UART_CFG1 = 0x30200000 | nBaudRateDiv;
     *pREG_UART_TXRX_BUF_THRESHOLD = 0;
     return 0;
 }
 
-int my_uart_putc(int c)
+int uart_putc(int c)
 {
     int a;
 
@@ -65,4 +87,38 @@ int my_uart_putc(int c)
 
     return 1;
 }
+
+void uart_puts(char* pcString)
+{
+    char* pcChar = pcString;
+    while(*pcChar != '\0')
+    {
+        uart_putc(*pcChar++);
+    }
+}
+
+void uart_put_num2hex(int nNum)
+{
+    int nNibble;
+    char cChar;
+
+    /* print additional prefix? */
+    //uart_putc( '0' );
+    //uart_putc( 'x' );
+
+    /* iterate through the 8 nibbles and print each nibble separately */
+    for(nNibble = 7; nNibble >= 0; nNibble--)
+    {
+        cChar = (nNum >> (nNibble*4)) & 0xf;
+        if(cChar >= 0x0 && cChar < 0xa)
+        {
+            uart_putc( 0x30 + cChar );
+        }
+        else /* if(cChar >= 0xa && cChar <= 0xf) */
+        {
+            uart_putc( 0x61 - 0xa + cChar );
+        }
+    }
+}
+
 
