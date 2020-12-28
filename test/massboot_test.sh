@@ -1,12 +1,13 @@
 #!/bin/bash
 execCmd="python3 ../snowbirdopter.py"
+serialDev="/dev/ttyUSB0"
 scsiDev="/dev/sg2"
 
 echo "This bash script will try to enter massboot and test SCSI commands."
 
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "[INFO] Loading boot redirect example via serial..."
-wholeCmd="$execCmd -c exec -f ../examples/boot_redirect/out.bin -a 08010000 -v 1"
+wholeCmd="$execCmd -p $serialDev -c exec -f ../examples/boot_redirect/out.bin -a 08010000 -v 1"
 echo "[INFO] Command: \"$wholeCmd\""
 $wholeCmd
 if [ $? -ne 0 ]; then
@@ -15,7 +16,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "[INFO] Selecting 'massboot'..."
-wholeCmd="$execCmd -c txbrxl -b m -a 0 -v 1"
+wholeCmd="$execCmd -p $serialDev -c txbrxl -b m -a 0 -v 1"
 echo "[INFO] Command: \"$wholeCmd\""
 $wholeCmd
 if [ $? -ne 0 ]; then
@@ -52,7 +53,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "[INFO] Selecting 'UART boot'..."
-wholeCmd="$execCmd -c txbrxl -b l -a 0 -v 1"
+wholeCmd="$execCmd -p $serialDev -c txbrxl -b l -a 0 -v 1"
 echo "[INFO] Command: \"$wholeCmd\""
 $wholeCmd
 if [ $? -ne 0 ]; then
