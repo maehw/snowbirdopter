@@ -12,3 +12,9 @@ echo "tttool explain game.gme | grep binary"
 echo "------------------------------------------------------------"
 tttool explain game.gme | grep binary
 
+# Extract offsets and sizes of game binaries
+echo ""
+echo "tttool explain game.gme | grep -i -e 'single.*binary.*main' | awk '{print $2","substr($4,1,length($4)-1)}' | tee binaries.csv"
+echo "-------------------------------------------------------------------------------------------------------------------------"
+tttool explain game.gme | grep -i -e 'single.*binary.*main' | awk '{print $2","substr($4,1,length($4)-1)}' | tee binaries.csv
+
