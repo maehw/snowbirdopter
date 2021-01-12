@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
-# Download original 'Spielfiguren2.gme'
-wget https://ssl-static.ravensburger.de/db/applications/Spielfiguren2.gme
+gme_name=`cat gme_name`
+echo "[INFO] gme_name='$gme_name'"
+
+url=https://ssl-static.ravensburger.de/db/applications/$gme_name
+echo "[INFO] url='$url'"
+
+# Download original gme file
+wget $url 
 
 # Copy it so that the next scripts can work on the more generic file name 'game.gme';
 # keep original file
-cp Spielfiguren2.gme game.gme
+cp $gme_name game.gme
 

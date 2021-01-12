@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # parse CSV file, extract binary for every row entry
-idx=0
+idx=1
 while IFS=, read -r offset size
 do
     # Extract the game's ARM binary using the outputs (offset + size) from analyze_gme.sh
