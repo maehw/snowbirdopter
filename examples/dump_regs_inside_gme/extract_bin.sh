@@ -5,6 +5,7 @@ idx=1
 while IFS=, read -r offset size
 do
     # Extract the game's ARM binary using the outputs (offset + size) from analyze_gme.sh
+    echo [INFO] dd status=none iflag=skip_bytes,count_bytes skip="$((offset))" if="game.gme" count="$((size))" of="game$((idx)).bin"
     dd status=none iflag=skip_bytes,count_bytes skip="$((offset))" if="game.gme" count="$((size))" of="game$((idx)).bin"
 
     # Disassemble the binary and make assembly code available in separate file 'game.s'
