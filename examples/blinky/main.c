@@ -1,7 +1,7 @@
 #include "tiptoi.h"
 
 void uart_deinit(void);
-inline void delay_1sec(void);
+void delay_1sec(void);
 
 /* Define which GPIO(s)/LED(s) you want to toggle/blink */
 #define BLINK_GPIO12 1
