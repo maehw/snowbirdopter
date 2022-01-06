@@ -8,7 +8,7 @@ int uart_putc(int c);
 void uart_puts(char* pcString);
 void uart_put_num2hex(int nNum);
 
-inline void delay_1sec(void);
+void delay_1sec(void);
 
 
 void main()
@@ -120,5 +120,3 @@ void uart_put_num2hex(int nNum)
         }
     }
 }
-
-
