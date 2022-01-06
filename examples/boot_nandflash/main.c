@@ -50,27 +50,25 @@ void main()
 
     unsigned int* pAddress = pStartAddress;
     unsigned int nWordCount;
-    unsigned int nInitializeZeros = 1;
+    const unsigned int nInitializeZeros = 1; /* flag to decide if memory shall be zeroed or not */
 
     if( nInitializeZeros )
     {
         /* initialize the whole BIOS memory region to zeros, i.e. 0x08000000..0x0800FFFF (64 Kbyte) */
         for( nWordCount = 0; nWordCount < 16384; nWordCount++ )
         {
-            *pAddress++ = 0; //nWordCount;
+            *pAddress++ = 0;
         }
     }
 
-    //pAddress = 0x08000100;
-    //bootrom_memcpy(pStartAddress, pAddress, 8); // where 8 is the number of *words* to be copied
-
-	bootrom_uart_puts("Program to load software BIOS from NAND flash. Send char to dump memory from address 0x08000000.\n");
+    bootrom_uart_puts("Program to load software BIOS from NAND flash. Send char to dump memory from address 0x08000000.\n");
     bootrom_uart_getc(&nRxWord);
 
-	bootrom_uart_puts("Rx'ed character. Dumping memory from address 0x08000000 (should read zeros or garbage)...\n");
+    bootrom_uart_puts("Rx'ed character. Dumping memory from address 0x08000000 (should read zeros or garbage)...\n");
+    /* dump memory using bootrom's UART functions */
     uart_dump_mem(pStartAddress, pEndAddress);
 
-	bootrom_uart_puts("Done. Send another character to load the software BIOS and then dump again.\n");
+    bootrom_uart_puts("Done. Send another character to load the software BIOS via bootrom and then dump again.\n");
     bootrom_uart_getc(&nRxWord);
 
     nSuccess = bootrom_nandflash_loadbios();
@@ -85,7 +83,7 @@ void main()
     bootrom_uart_puts(" Dumping same memory region again (should read BIOS code)...\n");
     uart_dump_mem(pStartAddress, pEndAddress);
 
-	bootrom_uart_puts("Done. Run the loaded BIOS? [y/n]\n");
+    bootrom_uart_puts("Done. Run the loaded BIOS? [y/n]\n");
     bootrom_uart_getc(&nRxWord);
     c = nRxWord & 0xFF;
 
@@ -98,4 +96,3 @@ void main()
         bootrom_uartboot(); /* "reboot" via uartboot: if called over and over again this may build up a larger stack and potentially lead to a stack overflow at some point in time */
     }
 }
-
