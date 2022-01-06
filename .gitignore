@@ -1,6 +1,5 @@
-bin/
-**/*.out
-**/*.bin
+**.out
+examples/**/out.bin
 **/*.gme
 **/*.o
 **/*.zip

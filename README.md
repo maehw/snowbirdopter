@@ -2,7 +2,7 @@
 
 The **snowbirdopter** is a tool which can be used to get memory dumps from the tiptoi pen[^0], to load arbitrary memory (code and data) into the pen's processor's memory and to execute binaries. This can either be done via UART boot mode or via USB/SCSI in mass boot mode for firmware update (not the "normal" mass boot mode). It can also be used to exchange serial data (transmit and receive) over the UART interface with the pen.
 
-It can be used to find out more about the processor and the the whole tiptoi pen's execution environment, e.g. how embedded games can be analyzed, debugged or developed. The communication with the pen is based on its UART boot mode (details in the "Usage" section below). 
+It can be used to find out more about the processor and the the whole tiptoi pen's execution environment, e.g. how embedded games can be analyzed, debugged or developed. The communication with the pen is based on its UART boot mode (details in the "Usage" section below).
 
 ***IMPORTANT: This software has been developed on an information basis compiled from information freely available on the Internet and confirmed by own experiments. It is provided without any guarantee and may be erroneous! We are not responsible when you brick your tiptoi pen!***
 
@@ -29,6 +29,7 @@ If the package is not installed you will get the following or a similar error me
    ModuleNotFoundError: No module named 'serial'
 ```
 
+If you want to do compile, load and execute your own source code, you'll need an ARM cross-compiler. The installation process is described in another section below.
 
 
 ## Usage
@@ -134,6 +135,12 @@ You will find pre-compiled binaries in the examples/ subfolder. To modify them o
 sudo apt install binutils-arm-linux-gnueabi
 ```
 
+For MacOS you can use the following command in the terminal:
+
+```
+brew install gcc-arm-embedded
+```
+
 Build the "hello world" example:
 
 ```
@@ -194,14 +201,14 @@ There are already some more examples in the *examples/* subdirectory. Feel free 
 In general, you can create hex dumps of binary files. The `xxd` tool allows you to view the binary content with one 32-bit word per line:
 
 ```
-xxd -ps -c 4 -e:4 ./examples/uart_hello_world/out.bin 
+xxd -ps -c 4 -e:4 ./examples/uart_hello_world/out.bin
 ```
 
 > ```
 > 00000000: eaffffff  ....
 > 00000004: eb000000  ....
 > 00000008: eafffffe  ....
-> 
+>
 > (...)
 > ```
 
@@ -217,9 +224,9 @@ arm-none-eabi-objdump --architecture=arm -b binary -D ./examples/uart_hello_worl
 
 > ```
 > ./examples/uart_hello_world/out.bin:     file format binary
-> 
+>
 > Disassembly of section .data:
-> 
+>
 > 00000000 <.data>:
 >    0:	eaffffff 	b	0x4
 >    4:	eb000000 	bl	0xc
@@ -246,4 +253,3 @@ The name **snowbirdopter** derives from the codename of the tiptoi pen's ARM pro
 [^2]: Have you ever heard about [ornithopters](https://en.wikipedia.org/wiki/Ornithopter)?
 
 [^3]: [Wiktionary: opter](https://en.wiktionary.org/wiki/opter)
-
