@@ -9,35 +9,38 @@ _dump_regs:
     @ make sure that the UART has already been initialized by the caller
     push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, lr} @ r10/sl, r11/fp, r12/ip, r14/lr; do not store r13/sp and r15/pc on the stack!
 
+    @ first operand of 'mov' instruction is the destination registers; so store sp in r4
     mov r4, sp
 
+    @ load immediate value 0x00000072 into r0
+    @ where 0x00000072 represents the characters '\0\0\0r' (reverse byte order of NULL-terminated C string "r")
     mov r0, #0x00000072
-    push {r0} @ '\0\0\0r' (reverse byte order of "r")
+    push {r0}
 
     orr r0, #0x00006500
     orr r0, #0x00670000
     orr r0, #0x20000000
-    push {r0} @ ' ger' (reverse byte order of "reg ")
+    @ load immediate value 0x20676500 which represents the characters ' ger' (reverse byte order of the C string "reg ")
+    push {r0}
 
-
-    @ dump stored r0
+    @ print the string that we've just pushed onto the stack
     mov r0, sp
     bl uart_puts
 
-    mov r0, #48
+    mov r0, #48  @ represents the ASCII character for '0'
     bl uart_putc
 
-    mov r0, #58
+    mov r0, #58  @ represents the ASCII character for a colon ':'
     bl uart_putc
 
-    ldr r0, [r4, #0]
+    ldr r0, [r4, #0]  @ dump register r0 which has been stored on the stack; location is pointed to by r4 (the old sp)
     bl uart_put_num2hex
 
-    mov r0, #44
+    mov r0, #44  @ ASCII character ','
     bl uart_putc
 
 
-    @ dump stored r1
+    @ dump stored r1, starting with the prefix string
     mov r0, sp
     bl uart_puts
 
