@@ -3,10 +3,11 @@
 
 void swuart_init(void);
 void swuart_putc(char c);
-inline void swuart_bitdelay(void);
-inline void swuart_putbit(bool bHighLow);
+void swuart_bitdelay(void);
+void swuart_putbit(bool bHighLow);
 void swuart_puts(char* pcString);
 
+/* allow querying of USB detection pin (GPIO8) as application demo for this example */
 #define CHECK_USB_CABLE
 
 void main()
@@ -54,21 +55,21 @@ void swuart_init(void)
 void swuart_putc(char c)
 {
     int nBitPos;
-    
+
     swuart_putbit(false); /* start bit */
-    
+
     for(nBitPos = 0; nBitPos <= 7; nBitPos++)
     {
         swuart_putbit( (c >> nBitPos) & 0x1 );
     }
-    
+
     swuart_putbit(true); /* stop bit */
 }
 
 inline void swuart_bitdelay(void)
 {
     int k;
-    
+
     /* delay for approximately 26 useconds to get a baud rate of 38400 */
     for(k = 0; k < 25; k++)
     {
@@ -109,4 +110,3 @@ void swuart_puts(char* pcString)
         swuart_putc(*pcChar++);
     }
 }
-

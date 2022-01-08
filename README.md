@@ -144,7 +144,7 @@ brew install gcc-arm-embedded
 Build the "hello world" example:
 
 ```
-cd examples/uart_hello_world/
+cd examples/standalone/bootrom_uart_hello_world/
 make clean
 make
 ```

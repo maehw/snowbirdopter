@@ -13,6 +13,12 @@ void delay_1sec(void);
 
 void main()
 {
+    /* !!! WARNING !!!
+     * This file is probably in a work-in-progress (WIP) state
+     * and will quite likely not work! Though, feel free to modify and run it.
+     * !!! WARNING !!!
+     */
+
     // the following lines should blink/toggle GPIO13 endlessly
     *pREG_SHARE_PIN_CTRL = *pREG_SHARE_PIN_CTRL & 0xfffffffe;
 
@@ -57,7 +63,7 @@ void main()
     }
 
     // call function with four arguments; first argument is stored in r0, fourth argument in r3
-	_still_works(myptrs[0], myptrs[13], &mychars[3564], 0xDEADBEEF);
+    _still_works(myptrs[0], myptrs[13], &mychars[3564], 0xDEADBEEF);
 }
 
 #endif
