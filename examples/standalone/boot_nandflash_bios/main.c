@@ -2,6 +2,66 @@
 
 typedef void func(void);
 
+void uart_dump_mem(unsigned int* pInputStartAddr, unsigned int* pInputEndAddr);
+
+void main()
+{
+    int nRxWord;
+    int nSuccess;
+    char c;
+    unsigned int* pStartAddress = (unsigned int*)0x08000000;
+    unsigned int* pEndAddress   = (unsigned int*)0x080001ff;
+    func* run_software_bios = (func*)0x08000000;
+
+    unsigned int* pAddress = pStartAddress;
+    unsigned int nWordCount;
+    const unsigned int nInitializeZeros = 1; /* flag to decide if memory shall be zeroed or not */
+
+    if( nInitializeZeros )
+    {
+        /* initialize the whole BIOS memory region to zeros, i.e. 0x08000000..0x0800FFFF (64 Kbyte) */
+        for( nWordCount = 0; nWordCount < 16384; nWordCount++ )
+        {
+            *pAddress++ = 0;
+        }
+    }
+
+    bootrom_uart_puts("Program to load software BIOS from NAND flash. Send char to dump memory from address 0x08000000.\n");
+    bootrom_uart_getc(&nRxWord); /* just wait for the character but ignore its value */
+
+    bootrom_uart_puts("Rx'ed character. Dumping memory from address 0x08000000 (should read zeros or garbage)...\n");
+    /* dump memory using bootrom's UART functions */
+    uart_dump_mem(pStartAddress, pEndAddress);
+
+    bootrom_uart_puts("Done. Send another character to load the software BIOS via bootrom and then dump again.\n");
+    bootrom_uart_getc(&nRxWord); /* just wait for the character but ignore its value */
+
+    nSuccess = bootrom_nandflash_loadbios();
+    if( nSuccess )
+    {
+        bootrom_uart_puts("Successfully loaded software BIOS from NAND flash.");
+    }
+    else
+    {
+        bootrom_uart_puts("Failed to load software BIOS from NAND flash.");
+    }
+    bootrom_uart_puts(" Dumping same memory region again (should read BIOS code)...\n");
+    uart_dump_mem(pStartAddress, pEndAddress);
+
+    bootrom_uart_puts("Done. Run the loaded BIOS? [y/n]\n");
+    bootrom_uart_getc(&nRxWord);
+    c = nRxWord & 0xFF;
+
+    if( c == 'y' || c == 'Y' )
+    {
+        run_software_bios(); /* run the software BIOS loaded at address 0x08000000 by calling run_software_bios() */
+    }
+    else
+    {
+        bootrom_uartboot(); /* "reboot" via uartboot: if called over and over again this may build up a larger stack and potentially lead to a stack overflow at some point in time */
+    }
+}
+
 void uart_dump_mem(unsigned int* pInputStartAddr, unsigned int* pInputEndAddr)
 {
     unsigned int *pDataAddress;
@@ -36,63 +96,5 @@ void uart_dump_mem(unsigned int* pInputStartAddr, unsigned int* pInputEndAddr)
 
         pDataAddress++;
         nCnt++;
-    }
-}
-
-void main()
-{
-    int nRxWord;
-    int nSuccess;
-    char c;
-    unsigned int* pStartAddress = (unsigned int*)0x08000000;
-    unsigned int* pEndAddress   = (unsigned int*)0x080001ff;
-    func* run_software_bios = (func*)0x08000000;
-
-    unsigned int* pAddress = pStartAddress;
-    unsigned int nWordCount;
-    const unsigned int nInitializeZeros = 1; /* flag to decide if memory shall be zeroed or not */
-
-    if( nInitializeZeros )
-    {
-        /* initialize the whole BIOS memory region to zeros, i.e. 0x08000000..0x0800FFFF (64 Kbyte) */
-        for( nWordCount = 0; nWordCount < 16384; nWordCount++ )
-        {
-            *pAddress++ = 0;
-        }
-    }
-
-    bootrom_uart_puts("Program to load software BIOS from NAND flash. Send char to dump memory from address 0x08000000.\n");
-    bootrom_uart_getc(&nRxWord);
-
-    bootrom_uart_puts("Rx'ed character. Dumping memory from address 0x08000000 (should read zeros or garbage)...\n");
-    /* dump memory using bootrom's UART functions */
-    uart_dump_mem(pStartAddress, pEndAddress);
-
-    bootrom_uart_puts("Done. Send another character to load the software BIOS via bootrom and then dump again.\n");
-    bootrom_uart_getc(&nRxWord);
-
-    nSuccess = bootrom_nandflash_loadbios();
-    if( nSuccess )
-    {
-        bootrom_uart_puts("Successfully loaded software BIOS from NAND flash.");
-    }
-    else
-    {
-        bootrom_uart_puts("Failed to load software BIOS from NAND flash.");
-    }
-    bootrom_uart_puts(" Dumping same memory region again (should read BIOS code)...\n");
-    uart_dump_mem(pStartAddress, pEndAddress);
-
-    bootrom_uart_puts("Done. Run the loaded BIOS? [y/n]\n");
-    bootrom_uart_getc(&nRxWord);
-    c = nRxWord & 0xFF;
-
-    if( c == 'y' || c == 'Y' )
-    {
-        run_software_bios(); /* run the software BIOS loaded at address 0x08000000 by calling run_software_bios() */
-    }
-    else
-    {
-        bootrom_uartboot(); /* "reboot" via uartboot: if called over and over again this may build up a larger stack and potentially lead to a stack overflow at some point in time */
     }
 }

@@ -3,7 +3,9 @@
 void uart_deinit(void);
 void delay_1sec(void);
 
-/* Define which GPIO(s)/LED(s) you want to toggle/blink */
+/* Define which GPIO(s)/LED(s) you want to toggle/blink.
+ * Note: GPIO12 and GPIO13 are typically used for UART RX and TX.
+ */
 #define BLINK_GPIO12 1
 #define BLINK_GPIO13 1
 
@@ -35,13 +37,14 @@ void main()
 
 void uart_deinit(void)
 {
+    /* clear least significant bit of the register */
     *pREG_SHARE_PIN_CTRL = *pREG_SHARE_PIN_CTRL & 0xfffffffe;
 }
 
 inline void delay_1sec(void)
 {
     volatile int nDelay = 0;
-    /* delay for about 1 second (empirical) */
+    /* delay for about 1 second (determined empirically) */
     for(nDelay = 0; nDelay < (1 << 20); nDelay++)
     {
         asm("nop;");
