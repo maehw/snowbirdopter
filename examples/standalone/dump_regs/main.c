@@ -13,58 +13,59 @@ void main()
     int nRegVal = 0;
 
     uart_init();
-	uart_puts("CPU register dump: ");
 
-	_dump_regs();
+    /* Dump CPU registers using hand-written assembly code */
+    uart_puts("CPU register dump: ");
+    _dump_regs();
 
-    // Dump some more registers
+    /* Dump some more (peripheral, memory-mapped) registers on a single output line */
     uart_puts("Peripherals register dump:");
 
     uart_puts("REG_CLOCK_DIV1:");
     nRegVal = *pREG_CLOCK_DIV1;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
+    uart_putc(',');
 
     uart_puts("REG_CLOCK_DIV2:");
     nRegVal = *pREG_CLOCK_DIV2;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
+    uart_putc(',');
 
     uart_puts("REG_SHARE_PIN_CTRL:");
     nRegVal = *pREG_SHARE_PIN_CTRL;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
-	
+    uart_putc(',');
+
     uart_puts("REG_BOOT_MODE:");
     nRegVal = *pREG_BOOT_MODE;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
+    uart_putc(',');
 
     uart_puts("REG_GPIO_DIR_2:");
     nRegVal = *pREG_GPIO_DIR_2;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
+    uart_putc(',');
 
     uart_puts("REG_GPIO_OUT_2:");
     nRegVal = *pREG_GPIO_OUT_2;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
+    uart_putc(',');
 
     uart_puts("REG_TBD:");
     nRegVal = *pREG_TBD;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
+    uart_putc(',');
 
     uart_puts("REG_UART_CFG1:");
     nRegVal = *pREG_UART_CFG1;
     uart_put_num2hex(nRegVal);
-	uart_putc(',');
+    uart_putc(',');
 
     uart_puts("REG_UART_TXRX_BUF_THRESHOLD:");
     nRegVal = *pREG_UART_TXRX_BUF_THRESHOLD;
     uart_put_num2hex(nRegVal);
 
-	uart_putc('\n');
+    uart_putc('\n');
 }
 
 int uart_init(void)
@@ -125,5 +126,3 @@ void uart_put_num2hex(int nNum)
         }
     }
 }
-
-
