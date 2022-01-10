@@ -1,4 +1,6 @@
 **.out
+examples/use_inside_gme/dump_regs/game*
+examples/use_inside_gme/dump_regs/binaries.csv
 examples/**/out.bin
 **/*.gme
 **/*.o
