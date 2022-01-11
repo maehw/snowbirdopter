@@ -87,7 +87,7 @@ class snowbirdopter:
             if rxEcho:
                 cRx = self.ser.read(1)
                 if checkEcho and (cTx != cRx):
-                    print(f"[ERROR] Tx: '{cTx}' != Rx: '{cRx}'")
+                    print(f"[ERROR] Tx: {cTx} != Rx: {cRx}")  # no need to put characters into single ticks as we handle single bytes here
                     return False
         return True
 
