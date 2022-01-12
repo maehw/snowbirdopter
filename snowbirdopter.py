@@ -622,7 +622,7 @@ if __name__ == '__main__':
                         help='command (dump, setval[ue], go, load, exec, txb, rxb, trxb, txbrxl)')
 
     parser.add_argument('-a', action="store", default=False,
-                        required=True,
+                        required=False,
                         dest='address',
                         help="start address as hex string, without '0x' prefix")
 
@@ -647,13 +647,27 @@ if __name__ == '__main__':
                         help='print detailed output')
 
     parser.add_argument('--version', action='version',
-                        version='%(prog)s 0.3')
+                        version='%(prog)s 0.4')
 
     args = parser.parse_args()
     # print(args) # for debugging purpose
 
+    sercoms_cmds = ['txb', 'rxb', 'trxb', 'txbrxl', 'rxl']
+    other_cmds = ['load', 'exec', 'dump', 'go', 'setval', 'setvalue']
+
     cmd = args.command.lower()
-    address = "{:08x}".format(int(args.address, 16))
+    if (cmd not in sercoms_cmds) and (cmd not in other_cmds):
+        print(f"[ERROR] Unknown command '{cmd}'.")
+        sys.exit(16)
+
+    if cmd not in sercoms_cmds:
+        if not args.address:
+            print(f"[ERROR] The address flag (-a) is mandatory for command '{cmd}' and only optional for serial communication commands.")
+            sys.exit(15)
+
+    address = None
+    if args.address:
+        address = "{:08x}".format(int(args.address, 16))
 
     if args.endAddress:
         endAddress = "{:08x}".format(int(args.endAddress, 16))
@@ -673,8 +687,8 @@ if __name__ == '__main__':
         print("[WARNING] Not run under Linux. SCSI commands won't be supported on this platform.")
 
     if not args.serport:
-        if cmd in ['txb', 'rxb', 'trxb', 'txbrxl', 'rxl']:
-            print(f"[ERROR] Command '{cmd}' needs a serial (-p) device.")
+        if cmd in sercoms_cmds:
+            print(f"[ERROR] Serial communication command '{cmd}' needs a serial (-p) device.")
             sys.exit(13)
         if not args.scsidev:
             print("[ERROR] At least a serial (-p) or an SCSI device (-s) needs to be given.")
