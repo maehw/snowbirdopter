@@ -71,18 +71,18 @@ optional arguments:
 
 The currently supported commands are:
 
-| command    | description                                                  |
-| ---------- | ------------------------------------------------------------ |
-| dump       | Dump memory from a specific address or address range<br />(dumps to *stdout* in a human-readable format, optionally also dumps to a raw binary file) |
-| setval[ue] | Set a 32-bit word at a specific address                      |
-| go         | Execute the code located at a given address (address given by -a) |
-| load       | Load a binary executable from the file system to the target (at address given by -a) |
-| exec       | Load a binary executable from the file system to the target and execute it |
-| txb        | Transmit a single byte (-b) to the serial                    |
-| rxb        | Receive a single byte from the serial                        |
-| trxb       | Transmit a single byte (-b) to serial and immediately read back a single byte from the serial |
-| txbrxl     | Transmit a single byte (-b) to serial and immediately read back one or several lines from the serial |
-| rxl        | Read one or several lines from the serial                    |
+| command      | addresss required? | description                                                  |
+| ------------ |:------------------:| ------------------------------------------------------------ |
+| `dump`       | ✓                  | Dump memory from a specific address or address range<br />(dumps to *stdout* in a human-readable format, optionally also dumps to a raw binary file) |
+| `setval[ue]` | ✓                  |  Set a 32-bit word at a specific address (given by `-a`)     |
+| `go`         | ✓                  |  Execute the code located at a given address (address given by `-a`) |
+| `load`       | ✓                  |  Load a binary executable from the file system to the target (at address given by `-a`) |
+| `exec`       | ✓                  |  Load a binary executable from the file system to the target and execute it |
+| `txb`        | ✗                  |  Transmit a single byte (`-b`) to the serial                    |
+| `rxb`        | ✗                  |  Receive a single byte from the serial                        |
+| `trxb`       | ✗                  |  Transmit a single byte (`-b`) to serial and immediately read back a single response byte from the serial |
+| `txbrxl`     | ✗                  |  Transmit a single byte (`-b`) to serial and immediately read back one or several lines from the serial |
+| `rxl`        | ✗                  |  Read one or several lines from the serial                    |
 
 
 
