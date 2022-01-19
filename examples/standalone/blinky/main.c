@@ -5,6 +5,10 @@ void delay_1sec(void);
 
 /* Define which GPIO(s)/LED(s) you want to toggle/blink.
  * Note: GPIO12 and GPIO13 are typically used for UART RX and TX.
+ *       Take care as the UART RX pin (seen from the device) is typically driven
+ *       high from the host/PC - and UART is idle high.
+ *       Take care not to damage your hardware.
+ * Note: Please remember that you execute this code on your own risk!
  */
 #define BLINK_GPIO12 1
 #define BLINK_GPIO13 1

@@ -606,6 +606,9 @@ class snowbirdopter:
 
 
 if __name__ == '__main__':
+    # TODO: Improve error handling in the sense of using only a few return codes
+    #       and not a whole range of integer values.
+
     parser = argparse.ArgumentParser(description='%(prog)s')
 
     parser.add_argument('-p', action="store", default=False,
@@ -735,6 +738,10 @@ if __name__ == '__main__':
                 sys.exit(3)
 
         elif cmd == 'load' or cmd == 'exec':  # load data/code (and eventually also execute code)
+            if not fname:
+                print(f"[ERROR] The command '{cmd}' required the '-f' option to specify a file.")
+                sys.exit(17)
+
             if inst.load_binfile(address, fname, verbose):
                 print("[INFO] Loading binfile succeeded.")
                 if cmd == 'exec':
