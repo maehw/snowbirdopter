@@ -43,23 +43,19 @@ python3 snowbirdopter.py -h
 The output should look similar to:
 
 ```
-usage: snowbirdopter.py [-h] [-p SERPORT] [-s SCSIDEV] -c COMMAND -a ADDRESS
-                        [-e ENDADDRESS] [-n VALUE] [-b TXBYTE] [-f FILE]
+usage: snowbirdopter.py [-h] [-p SERPORT] [-s SCSIDEV] -c COMMAND [-a ADDRESS] [-e ENDADDRESS] [-n VALUE] [-b TXBYTE] [-f FILE]
                         [-v VERBOSITY] [--version]
 
 snowbirdopter.py
 
 optional arguments:
   -h, --help     show this help message and exit
-  -p SERPORT     serial device port name (e.g. '/dev/ttyUSB0' or 'COM1';
-                 default: '/dev/ttyUSB0')
+  -p SERPORT     serial device port name (e.g. '/dev/ttyUSB0' or 'COM1')
   -s SCSIDEV     generic SCSI device file name (e.g. '/dev/sg2')
-  -c COMMAND     command (dump, setval[ue], go, load, exec, txb, rxb, trxb,
-                 txbrxl)
+  -c COMMAND     command (dump, setval[ue], go, load, exec, txb, rxb, trxb, txbrxl)
   -a ADDRESS     start address as hex string, without '0x' prefix
   -e ENDADDRESS  end address as hex string, without '0x' prefix
-  -n VALUE       value to be set in setval[ue] command, as hex string, without
-                 '0x' prefix
+  -n VALUE       value to be set in setval[ue] command, as hex string, without '0x' prefix
   -b TXBYTE      byte to be transmitted in txb command
   -f FILE        path to a binary file
   -v VERBOSITY   print detailed output
@@ -163,12 +159,22 @@ python3 snowbirdopter.py -p /dev/ttyUSB0 -c dump -a 0
 
 The output should look similar to:
 
-> [DEBUG] Serial port device name: '/dev/ttyUSB0'
-> [DEBUG] dump from 0x00000000 to 0x00000000
-> 0x00000000:  0xea000006
-> [INFO] Dump succeeded.
+```
+[INFO] 0x08100000:  0xea000020
+```
 
+Using a different verbosity level and running under the MacOS terminal this could also look like the following:
 
+```
+% python3 snowbirdopter.py -c dump -a 0 -p /dev/tty.SLAB_USBtoUART -v 1
+[DEBUG] Platform: Darwin
+[WARNING] Not run under Linux. SCSI commands won't be supported on this platform.
+[DEBUG] Serial device port name: '/dev/tty.SLAB_USBtoUART'
+[DEBUG] dump from 0x00000000 to 0x00000000
+[INFO] 0x00000000:  0xea000006
+[DEBUG] Return value from specific dump: True
+[INFO] Dump succeeded.
+```
 
 Load the previously built "hello world" example mentioned to the target and execute it by using the following command line:
 
@@ -178,17 +184,19 @@ python3 snowbirdopter.py -p /dev/ttyUSB0 -c exec -f ./examples/uart_hello_world/
 
 The output should look similar to:
 
-> [DEBUG] File './examples/uart_hello_world/out.bin' exists.
-> [DEBUG] Serial port device name: '/dev/ttyUSB0'
-> [DEBUG] load_binfile('./examples/uart_hello_world/out.bin' at 0x08010000)
-> [DEBUG] File size: 120
-> [DEBUG] setvalue 0xeaffffff at 0x08010000
-> [DEBUG] setvalue 0xeb000000 at 0x08010004
-> ...
-> [INFO] Loading binfile succeeded.
-> [DEBUG] go to address 0x08010000
-> Read from serial: b'Hello Tiptoi! Hello world!\n'
-> [INFO] Executing binfile succeeded.
+```
+[DEBUG] File './examples/uart_hello_world/out.bin' exists.
+[DEBUG] Serial port device name: '/dev/ttyUSB0'
+[DEBUG] load_binfile('./examples/uart_hello_world/out.bin' at 0x08010000)
+[DEBUG] File size: 120
+[DEBUG] setvalue 0xeaffffff at 0x08010000
+[DEBUG] setvalue 0xeb000000 at 0x08010004
+...
+[INFO] Loading binfile succeeded.
+[DEBUG] go to address 0x08010000
+Read from serial: b'Hello Tiptoi! Hello world!\n'
+[INFO] Executing binfile succeeded.
+```
 
 **Important note**: The pen won't be responsive to further commands and will need to be power-cycled.
 
@@ -204,13 +212,13 @@ In general, you can create hex dumps of binary files. The `xxd` tool allows you 
 xxd -ps -c 4 -e:4 ./examples/uart_hello_world/out.bin
 ```
 
-> ```
-> 00000000: eaffffff  ....
-> 00000004: eb000000  ....
-> 00000008: eafffffe  ....
->
-> (...)
-> ```
+```
+00000000: eaffffff  ....
+00000004: eb000000  ....
+00000008: eafffffe  ....
+
+(...)
+```
 
 
 
@@ -222,18 +230,18 @@ Disassemble a binary file which has been built for the ARM architecture, e.g. on
 arm-none-eabi-objdump --architecture=arm -b binary -D ./examples/uart_hello_world/out.bin
 ```
 
-> ```
-> ./examples/uart_hello_world/out.bin:     file format binary
->
-> Disassembly of section .data:
->
-> 00000000 <.data>:
->    0:	eaffffff 	b	0x4
->    4:	eb000000 	bl	0xc
->    8:	eafffffe 	b	0x8
->    c:	e92d4800 	push	{fp, lr}
-> (...)
-> ```
+```
+./examples/uart_hello_world/out.bin:     file format binary
+
+Disassembly of section .data:
+
+00000000 <.data>:
+   0:	eaffffff 	b	0x4
+   4:	eb000000 	bl	0xc
+   8:	eafffffe 	b	0x8
+   c:	e92d4800 	push	{fp, lr}
+(...)
+```
 
 
 
