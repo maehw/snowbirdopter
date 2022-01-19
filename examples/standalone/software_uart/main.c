@@ -7,9 +7,16 @@ void swuart_bitdelay(void);
 void swuart_putbit(bool bHighLow);
 void swuart_puts(char* pcString);
 
-/* allow querying of USB detection pin (GPIO8) as application demo for this example */
+/* Allow querying of USB detection pin (GPIO8) as application demo for this example;
+ * when commenting out the following line, a simple 'Hello world' message will be
+ * printed.
+ */
 #define CHECK_USB_CABLE
 
+/* The main purpose of this demo is to show that we can toggle the UART TX GPIO
+ * pin to send characters serially without initializing the UART peripheral or
+ * using bootrom code.
+ */
 void main()
 {
     swuart_init();
@@ -25,11 +32,11 @@ void main()
         /* query USB detection pin (GPIO8) */
         if( *pREG_GPIO_IN_1 & (1 << 8) )
         {
-            swuart_puts("USB plugged in.\n");
+            swuart_puts("tiptoi's USB plugged in and USB is powered.\n");
         }
         else
         {
-            swuart_puts("USB not plugged in.\n");
+            swuart_puts("tiptoi's USB not plugged in or USB is not powered.\n");
         }
 #else
         swuart_puts("Hello world!\n");
