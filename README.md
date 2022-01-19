@@ -203,6 +203,65 @@ Read from serial: b'Hello Tiptoi! Hello world!\n'
 There are already some more examples in the *examples/* subdirectory. Feel free to analyze, execute them on the pen and modify them according to your needs.
 
 
+## How to interact with executables (loaded via serial)
+
+There's some code in the examples that demonstrates how to interact with an executable using snowbirdopter's command.
+There's always the way for your code to send something via the serial. Not only that: you can also read characters from the serial - this allows your program to wait or even influence the program flow dependent on the user's input via serial.
+
+Here's an example:
+
+Go to the `/examples/standalone/boot_redirect` directory. Build (`make`) and load the executable:
+
+```
+% python3 ../../../snowbirdopter.py -c exec -a 08010000 -p /dev/tty.SLAB_USBtoUART -f out.bin
+[WARNING] Not run under Linux. SCSI commands won't be supported on this platform.
+[INFO] Loading binfile succeeded.
+[DEBUG] go to address 0x08010000
+[INFO] Read from serial: b'Boot mode register: 02000001. Boot will be redirected. Which bode mode to use? m/M=massboot, u/U=usbboot, s/S=SPI flash boot, n/N=NAND flash boot (default).\n'
+```
+
+The last line of the printed output signals that the executable is waiting for the user's input - in order to decide which boot mode to use.
+
+Inspecting the code gives us some insighets:
+
+```
+    bootrom_uart_puts(". Boot will be redirected. Which bode mode to use? ");
+    bootrom_uart_puts("m/M=massboot, u/U=usbboot, s/S=SPI flash boot, n/N=NAND flash boot (default).\n");
+
+    /* Wait for user input */
+    bootrom_uart_getc(&nWord);
+```
+
+Calling the function `bootrom_uart_get()` in your code will indeed let the processor block until a character has been received via the serial. In order to send the response we could either open a serial terminal, send the character and wait for the next output. Instead we can call snowbirdopter again in order to do that exact thing. Let's send the character `n` by using command `txbrxl` (send a single byte, but receive multiple lines as response) and specifying the character wiht option `-b`. As we want to see what's going on, we also specify verbosity level 1 by using `-v 1`:
+
+```
+% python3 ../../../snowbirdopter.py -c txbrxl -b n -p /dev/tty.SLAB_USBtoUART -v 1
+[DEBUG] Platform: Darwin
+[WARNING] Not run under Linux. SCSI commands won't be supported on this platform.
+[DEBUG] Serial device port name: '/dev/tty.SLAB_USBtoUART'
+[INFO] Tx: 'b'n''
+[INFO] Read from serial: b'Trying to boot via NAND flash.\n'
+[INFO] Transceiving byte succeeded.
+```
+
+Next, we should hear the tiptoi pen start sound - it's now ready to play as it has re-booted from NAND flash as in normal operation as if we just had pressed the power button on it.
+
+Finally having another glimpse at the code helps us understand what has happened and why:
+
+```
+(...)
+        case 'n':
+        case 'N':
+        default:
+            bootrom_uart_puts("Trying to boot via NAND flash.\n");
+            bootrom_nandflash_boot();
+            break;
+    }
+
+    /* Program flow should not reach this line */
+    bootrom_uart_puts("Unexpectedly continued execution to this point.\n");
+```
+
 
 ## How to analyze binary files
 
