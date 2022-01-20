@@ -21,28 +21,7 @@ void main()
 {
     swuart_init();
 
-#ifdef CHECK_USB_CABLE
-    /* allow querying of USB detection pin (GPIO8) */
-    *pREG_GPIO_DIR_1 |= (1 << 8);
-#endif
-
-    for(;;)
-    {
-#ifdef CHECK_USB_CABLE
-        /* query USB detection pin (GPIO8) */
-        if( *pREG_GPIO_IN_1 & (1 << 8) )
-        {
-            swuart_puts("tiptoi's USB plugged in and USB is powered.\n");
-        }
-        else
-        {
-            swuart_puts("tiptoi's USB not plugged in or USB is not powered.\n");
-        }
-#else
-        swuart_puts("Hello world!\n");
-#endif
-    }
-
+    swuart_puts("Hello world!\n");
 }
 
 void swuart_init(void)
