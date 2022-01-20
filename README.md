@@ -52,14 +52,15 @@ optional arguments:
   -h, --help     show this help message and exit
   -p SERPORT     serial device port name (e.g. '/dev/ttyUSB0' or 'COM1')
   -s SCSIDEV     generic SCSI device file name (e.g. '/dev/sg2')
-  -c COMMAND     command (dump, setval[ue], go, load, exec, txb, rxb, trxb, txbrxl)
+  -c COMMAND     command (dump, set[val[ue]], go, load, exec, txb, rxb, trxb, txbrxl)
   -a ADDRESS     start address as hex string, without '0x' prefix
   -e ENDADDRESS  end address as hex string, without '0x' prefix
-  -n VALUE       value to be set in setval[ue] command, as hex string, without '0x' prefix
+  -n VALUE       value to be set in setvalue command, as hex string, without '0x' prefix
   -b TXBYTE      byte to be transmitted in txb command
   -f FILE        path to a binary file
   -v VERBOSITY   print detailed output
   --version      show program's version number and exit
+
 ```
 
 

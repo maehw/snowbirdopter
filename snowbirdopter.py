@@ -622,7 +622,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', action="store", default=False,
                         required=True,
                         dest='command',
-                        help='command (dump, setval[ue], go, load, exec, txb, rxb, trxb, txbrxl)')
+                        help='command (dump, set[val[ue]], go, load, exec, txb, rxb, trxb, txbrxl)')
 
     parser.add_argument('-a', action="store", default=False,
                         required=False,
@@ -635,7 +635,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-n', action="store", default=False,
                         dest='value',
-                        help="value to be set in setval[ue] command, as hex string, without '0x' prefix")
+                        help="value to be set in setvalue command, as hex string, without '0x' prefix")
 
     parser.add_argument('-b', action="store", default=False,
                         dest='txbyte',
@@ -656,7 +656,7 @@ if __name__ == '__main__':
     # print(args) # for debugging purpose
 
     sercoms_cmds = ['txb', 'rxb', 'trxb', 'txbrxl', 'rxl']
-    other_cmds = ['load', 'exec', 'dump', 'go', 'setval', 'setvalue']
+    other_cmds = ['load', 'exec', 'dump', 'go', 'set', 'setval', 'setvalue']
 
     cmd = args.command.lower()
     if (cmd not in sercoms_cmds) and (cmd not in other_cmds):
@@ -677,6 +677,7 @@ if __name__ == '__main__':
     else:
         endAddress = address  # set end address equal to start address if no end address is given
 
+    value = None
     if args.value:
         value = "{:08x}".format(int(args.value, 16))
 
@@ -729,7 +730,11 @@ if __name__ == '__main__':
                 print("[ERROR] Dump failed.")
                 # sys.exit(2) # FIXME
 
-        elif cmd == 'setvalue' or cmd == 'setval':
+        elif cmd == 'setvalue' or cmd == 'setval' or cmd == 'set':
+            if not value:
+                print(f"[ERROR] The command '{cmd}' required the '-n' option to specify a value to be set.")
+                sys.exit(18)
+
             if inst.setvalue(address, value, verbose):
                 if verbose:
                     print("[INFO] Setting value succeeded.")
