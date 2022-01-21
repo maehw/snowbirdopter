@@ -7,6 +7,9 @@ void delay_halfsec(void);
 #define GPIO_KEY_VOLUME_DOWN  (1 << 1)
 #define GPIO_KEY_VOLUME_UP    (1 << 0)
 
+/*
+ * Note: Please remember that you execute this code on your own risk!
+ */
 void main()
 {
     /* set pin direction to input pins;
@@ -16,10 +19,32 @@ void main()
      */
     *pREG_GPIO_DIR_1 |= (GPIO_USB_DETECT | HEADPHONE_DETECT | GPIO_KEY_VOLUME_DOWN | GPIO_KEY_VOLUME_UP);
 
-    for(;;) // toggle endlessly
-    {
-        int regval = *pREG_GPIO_IN_1;
+    int regval1 = -1;
+    int regval2 = -1;
+    int regval = -1;
 
+    for(;;) // dump contents of what we assume to be the GPIO input value registers
+    {
+        regval = *pREG_GPIO_IN_1;
+        bootrom_uart_puts("GPIO1:");
+        bootrom_uart_put_num2hex(regval);
+        if( regval1 != regval )
+        {
+          bootrom_uart_puts(" - changed");
+        }
+        regval1 = regval;
+
+        regval = *pREG_GPIO_IN_2;
+        bootrom_uart_puts(", GPIO2:");
+        bootrom_uart_put_num2hex(regval);
+        if( regval2 != regval )
+        {
+          bootrom_uart_puts(" - changed");
+        }
+        regval2 = regval;
+
+        bootrom_uart_putc('\n');
+        /*
         bootrom_uart_puts("USB_DET=");
         if( regval & GPIO_USB_DETECT )
         {
@@ -61,6 +86,7 @@ void main()
         }
 
         bootrom_uart_putc('\n');
+        */
 
         delay_halfsec();
     }
